@@ -11,5 +11,6 @@
 | [0007](0007-workload-scope-and-capacity.md) | Requirements accepted; architecture pending | Shared organization access, one job per target, Linux/Docker and Windows workloads |
 | [0008](0008-two-jobs-per-target.md) | Accepted; operational verification pending | Two jobs per target, four total for the initial targets; supersedes earlier capacity |
 | [0009](0009-docker-preflight-and-isolation-gate.md) | Preflight verified; resource/isolation choice pending | Host capacity guard and nested Docker isolation selection |
+| [0010](0010-trusted-privileged-job-docker.md) | Accepted; implementation pending | Trusted privileged job-local Docker on Desktop; no dedicated VM |
 
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.

@@ -22,6 +22,8 @@ Project skill sources live in `.agents/skills/`. Read the relevant `SKILL.md` be
 
 ## Working conventions
 
+Accepted isolation choice (2026-10-08): Docker Desktop directly, no dedicated VM. Privileged disposable job-local Docker is explicitly authorized for trusted workflows only; this is a narrow exception for the job-local daemon, not permission to mount the host socket or expose TCP ports. See decision 0010. Approved WSL budget: 8 CPUs and 16 GB RAM, with two jobs per target and four initial jobs total.
+
 Initial targets are personal repository `AnnabiGihed/RaidManager` and organization `Pivot-Softwares`. Keep them in configuration; never hardcode them into reusable scripts or images. The user requires easy, documented onboarding for additional personal repositories and organizations using the same tooling. See `docs/decisions/0005-reusable-target-onboarding.md`.
 
 Read `docs/README.md` and accepted decisions before implementation. Preserve the user's constraints. Mark proposals and unverified assumptions explicitly. Do not report deployment or checks as successful without evidence. Do not invent owner names, installation IDs, resource budgets, or supported workflow capabilities.

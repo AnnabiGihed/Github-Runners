@@ -11,6 +11,7 @@
 - [Reusable target onboarding](runbooks/02-target-onboarding.md)
 - [Host preflight results](validation/2026-10-08-host-preflight.md)
 - [Dedicated Linux VM option](architecture/linux-vm-option.md)
+- [WSL resources and activation](runbooks/03-wsl-resources.md)
 
 ## Repository layout
 

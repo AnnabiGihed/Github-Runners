@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: Privileged job-local Docker accepted
+
+- User declined a dedicated VM and explicitly accepted privileged job-local Docker for trusted workflows. Recorded the exception and Unix-socket-only design in decision 0010 and AGENTS.md.
+- Saved and parsed Set-RunnerWslResources.ps1; applied the approved 8 CPU/16 GB settings with a local ignored backup, preserving unrelated configuration. No Docker/WSL restart occurred; active engine allocation is not yet changed or verified.
+- Whitespace checks passed. Runner/controller implementation and real workload/isolation tests remain pending.
+
 ## 2026-10-08: Verified Docker preflight and configuration guard
 
 - Verified local Linux Docker engine access outside the sandbox: 2 CPUs, 3.83 GiB memory, no containers. Recorded WSL2 and host memory; measured approximately 414.7 GiB free on D:.
