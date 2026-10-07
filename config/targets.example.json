@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "targets": [
+    {
+      "id": "personal-raidmanager",
+      "scope": "repository",
+      "owner": "AnnabiGihed",
+      "repository": "RaidManager",
+      "appId": null,
+      "installationId": null,
+      "privateKeyFile": ".local/secrets/personal-app.pem",
+      "labels": ["pc-personal"],
+      "maxRunners": 2
+    },
+    {
+      "id": "org-pivot-softwares",
+      "scope": "organization",
+      "owner": "Pivot-Softwares",
+      "repository": null,
+      "appId": null,
+      "installationId": null,
+      "privateKeyFile": ".local/secrets/organization-app.pem",
+      "labels": ["pc-organization"],
+      "maxRunners": 2
+    }
+  ]
+}

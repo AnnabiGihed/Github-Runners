@@ -1,0 +1,13 @@
+# Local credentials, job output, and machine state
+.local/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+__pycache__/
+*.pyc
+
+# Keep reproducible public examples in config/, never real credentials.

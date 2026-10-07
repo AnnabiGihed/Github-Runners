@@ -1,0 +1,14 @@
+# Decisions
+
+| ID | Status | Choice |
+| --- | --- | --- |
+| [0001](0001-project-skills-and-records.md) | Accepted | Repository-local skills and organized records |
+| [0002](0002-authentication-and-connectivity.md) | Accepted baseline; controller choice pending | GitHub App authentication and outbound-only connectivity |
+| [0003](0003-job-isolation.md) | Accepted constraints; platform details proposed | Single-job disposal and separated job/provisioner trust |
+| [0004](0004-standing-git-authorization.md) | Accepted | Standing authorization to commit and push project work |
+| [0005](0005-reusable-target-onboarding.md) | Accepted requirement; implementation pending | Configuration-driven target onboarding |
+| [0006](0006-initial-preflight-and-configuration.md) | Preflight accepted; schema/capacity proposed | Saved host preflight and JSON target example |
+| [0007](0007-workload-scope-and-capacity.md) | Requirements accepted; architecture pending | Shared organization access, one job per target, Linux/Docker and Windows workloads |
+| [0008](0008-two-jobs-per-target.md) | Accepted; operational verification pending | Two jobs per target, four total for the initial targets; supersedes earlier capacity |
+
+Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.
