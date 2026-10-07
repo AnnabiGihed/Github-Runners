@@ -5,7 +5,8 @@ param(
     [ValidateRange(30,86400)][int]$RunSeconds=3600,
     [ValidateRange(1,1440)][int]$IdleMinutes=60,
     [ValidateRange(0,3600)][int]$DrainSeconds=300,
-    [switch]$ValidationOnly
+    [switch]$ValidationOnly,
+    [switch]$ResetStopRequest
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -17,6 +18,7 @@ if ($images.daemon -notmatch '@sha256:[a-f0-9]{64}$') { throw 'Pinned daemon ima
 $stateDir=Join-Path $repoRoot '.local/controller'
 New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
 $lock=[IO.File]::Open((Join-Path $stateDir 'controller.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+if ($ResetStopRequest -and (Test-Path -LiteralPath (Join-Path $stateDir 'stop'))) { Remove-Item -LiteralPath (Join-Path $stateDir 'stop') }
 $statePath=Join-Path $stateDir 'state.json'
 $state=if (Test-Path $statePath) { Get-Content $statePath -Raw | ConvertFrom-Json } else { [pscustomobject]@{owner=[guid]::NewGuid().ToString('N');slots=@()} }
 $tokens=@{}

@@ -1,5 +1,24 @@
 # Change log
 
+## 2026-10-08: First existing CI outcomes and .NET image rollout
+
+- Existing addon, docs, and CI jobs all selected personal self-hosted runner identities and completed. The runs failed: Lua sudo dependency; companion/build-test .NET installation permissions; SonarCloud code findings; docs work-item hierarchy check (root cause not established from its generic annotation).
+- Built/smoke-tested the .NET install-path image fix, requested graceful controller stop, and observed all busy jobs finish with owned environments removed. Preparing a new one-hour session on the corrected image. No running job was forcefully stopped.
+- The .NET fix still needs a CI rerun; Lua workflow changes, docs hierarchy diagnosis, Sonar findings, and migration of the separately observed GitHub-hosted review workflows remain outstanding. No claim of successful full CI or all-workflow migration.
+- Verified the new session has two online ephemeral production runners, unprivileged/volume-only/no host published ports, with the corrected .NET install path writable. Session is bounded to one hour; no unattended service is installed.
+
+## 2026-10-08: Existing CI picked up personal runners
+
+- Confirmed addon Lua and CI Sonar jobs executed on distinct production pc-personal runner identities; the controller removed their used environments and replenished them. Companion also picked up a fresh runner; docs remained active during observation.
+- Public annotations confirmed Lua sudo failure, .NET /usr/share/dotnet permission failure, and SonarCloud code findings. Added saved public status/annotation inspection and documented precise limits in decision 0014.
+- Prepared the user-writable .NET SDK path in the runner image and a saved graceful-stop request. Active sessions retain their original image content ID; image rollout requires drain/restart. Lua workflow edits and successful CI retest remain pending.
+
+## 2026-10-08: Existing CI test routing enabled
+
+- User chose existing CI instead of a separate smoke workflow and is committing the self-hosted runs-on change; the commit automatically triggers CI.
+- Under the user's explicit all-self-hosted routing choice for the temporarily public personal repository, set trustedPublicWorkflows=true in ignored local configuration using saved tooling. This is an operator acknowledgement, not enforcement against untrusted workflow code.
+- Starting a bounded one-hour personal controller session with two slots to accept the user's CI run. Online/CI results will be verified separately; organization capacity remains unconfigured.
+
 ## 2026-10-08: Personal controller registration verified
 
 - Added bounded host warm-pool controller with exclusive lock, token renewal, ownership-checked persisted cleanup, startup-failure limit, idle replacement, and shutdown drain. Corrected helper command-name collision and single-label serialization exposed by initial tests.

@@ -15,6 +15,8 @@ The controller runs in the foreground, replenishes a small warm pool on a 10-sec
 
 To request an orderly stop, create an empty ignored .local/controller/stop file; delete it before restarting. Shutdown stops replenishment and drains busy jobs for DrainSeconds (default five minutes). If busy jobs remain or API/network cleanup fails, their state is retained for manual inspection and later reconciliation; do not delete state or globally prune Docker. Forced job cancellation is not implemented.
 
+Saved stop tooling: `./scripts/controller/Request-RunnerControllerStop.ps1`. After the old session exits, start the new image with `./scripts/controller/Start-RunnerController.ps1 -ResetStopRequest -RunSeconds 3600`. The reset happens only after acquiring the exclusive controller lock.
+
 For production on a public personal target, trustedPublicWorkflows must be explicitly true in its local config after reviewing trigger policy. This is an operator acknowledgment, not enforcement against malicious pull requests. The user intends RaidManager to become private and all its workloads to run self-hosted. Do not silently add fork-trigger workflows while it is temporarily public.
 
 Production invocation: `./scripts/controller/Start-RunnerController.ps1 -RunSeconds 3600`. Each slot uses a privileged daemon capped at 1.5 CPUs/2 GiB and an unprivileged runner capped at 0.5 CPU/1 GiB; four slots fit the configured 8 CPU/16 GiB engine budget but real build performance is not yet measured. The runner shares its own daemon's network namespace so nested service port mappings are reachable from localhost inside that job environment. No mapping reaches the Windows host. Both see the workspace at /job-work.

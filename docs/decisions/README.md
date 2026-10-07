@@ -15,5 +15,6 @@
 | [0011](0011-pinned-images-and-job-engine.md) | Local tooling implemented; live provisioning pending | Pinned official images and disposable Unix-socket Docker smoke tests |
 | [0012](0012-github-app-authentication-client.md) | Offline tested; live validation pending | Host-side App JWT, narrowed tokens, and installation access checks |
 | [0013](0013-warm-pool-controller.md) | Two personal registrations verified; workload tests pending | Bounded host warm pool and ownership-checked lifecycle |
+| [0014](0014-existing-ci-toolchain-compatibility.md) | Live failures identified; fixes/retest pending | User-writable .NET SDK path; Lua sudo incompatibility; preserve Sonar gate |
 
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.

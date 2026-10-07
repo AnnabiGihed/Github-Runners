@@ -21,7 +21,9 @@ foreach ($target in $config.targets) {
             $configText=(& docker exec $slot.name cat /home/runner/.runner | Out-String).TrimStart([char]0xFEFF)
             $runnerConfig=$configText | ConvertFrom-Json
             if ($LASTEXITCODE -ne 0) { throw 'Runner configuration inspection failed.' }
-            [pscustomobject]@{Target=$target.id;Registered=($remote.Count -eq 1);Online=($remote.Count -eq 1 -and $remote[0].status -eq 'online');ConfiguredEphemeral=$runnerConfig.ephemeral;UnprivilegedRunner=$true;OnlyJobVolumes=$true;NoPublishedPorts=$true;Labels=($remote.labels.name -join ',')}
+            & docker exec $slot.name bash -c 'test "$DOTNET_INSTALL_DIR" = /job-work/.dotnet && mkdir -p "$DOTNET_INSTALL_DIR" && test -w "$DOTNET_INSTALL_DIR"' | Out-Null
+            $dotnetWritable=($LASTEXITCODE -eq 0)
+            [pscustomobject]@{Target=$target.id;Registered=($remote.Count -eq 1);Online=($remote.Count -eq 1 -and $remote[0].status -eq 'online');ConfiguredEphemeral=$runnerConfig.ephemeral;UnprivilegedRunner=$true;OnlyJobVolumes=$true;NoPublishedPorts=$true;DotnetInstallPathWritable=$dotnetWritable;Labels=($remote.labels.name -join ',')}
         }
     } finally {
         $null=Invoke-RunnerGitHubApi -Method DELETE -Path '/installation/token' -Token $credential.token

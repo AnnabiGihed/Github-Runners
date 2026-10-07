@@ -9,4 +9,5 @@ COPY --chmod=755 infra/runner/entrypoint.sh /usr/local/bin/ephemeral-entrypoint
 USER runner
 WORKDIR /home/runner
 ENV DOCKER_HOST=unix:///job-socket/docker.sock
+ENV DOTNET_INSTALL_DIR=/job-work/.dotnet
 ENTRYPOINT ["/usr/local/bin/ephemeral-entrypoint"]
