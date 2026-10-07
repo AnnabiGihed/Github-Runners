@@ -12,6 +12,8 @@
 - [Host preflight results](validation/2026-10-08-host-preflight.md)
 - [Dedicated Linux VM option](architecture/linux-vm-option.md)
 - [WSL resources and activation](runbooks/03-wsl-resources.md)
+- [Build and local test](runbooks/04-build-and-local-test.md)
+- [GitHub App setup](runbooks/05-github-app-setup.md)
 
 ## Repository layout
 
@@ -29,4 +31,4 @@
 | `tests/` | Meaningful automated checks when implemented |
 | `.local/` | Ignored secrets/runtime state; never versioned |
 
-Initial preflight and onboarding runbooks are available. Docker deployment assets do not exist yet; target configuration is an example pending implementation and validation.
+Runner image sources, pinned image inputs, configuration validation, and local job-engine tests are available. GitHub App provisioning/controller implementation and live workflows remain pending.

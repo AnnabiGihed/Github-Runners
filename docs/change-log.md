@@ -1,5 +1,12 @@
 # Change log
 
+## 2026-10-08: Runner image and job-local Docker test
+
+- Added official image digest resolution, locked Docker daemon/client and GitHub runner bases, narrow build context, LF shell policy, runner Dockerfile/entrypoint, and saved build tooling.
+- Built local/ephemeral-github-runner:dev successfully. Network-disabled smoke check passed: unprivileged runner, config/run scripts, jq, Docker 29.8.2, and Buildx 0.37.2. BuildKit warns that Dockerfile base ARGs have no defaults; the build script supplies required pinned values.
+- Passed the disposable job-local Docker test: Unix socket only, no daemon TCP API/host mounts/published host ports, nested container, and BuildKit image build. Confirmed no runner-lab containers, labeled volumes, or networks remained afterward.
+- Added build/test and GitHub App setup runbooks. Decision 0011 records inputs, tradeoffs, test corrections, and remaining live workflow/controller validation. No GitHub runner registration occurred.
+
 ## 2026-10-08: WSL resource allocation activated
 
 - Docker app restart retained the old limits. Verified the approved configuration and absence of unrelated WSL/container workloads, then ran the saved guarded backend restart.
