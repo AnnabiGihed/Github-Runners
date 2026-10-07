@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: WSL resource allocation activated
+
+- Docker app restart retained the old limits. Verified the approved configuration and absence of unrelated WSL/container workloads, then ran the saved guarded backend restart.
+- Host preflight now verifies 8 CPUs and 15.62 GiB memory in the Linux engine. No containers were created. Real job capacity and runner implementation remain pending.
+
 ## 2026-10-08: Privileged job-local Docker accepted
 
 - User declined a dedicated VM and explicitly accepted privileged job-local Docker for trusted workflows. Recorded the exception and Unix-socket-only design in decision 0010 and AGENTS.md.

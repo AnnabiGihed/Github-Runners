@@ -10,4 +10,6 @@ The script backs up existing configuration under ignored .local/host-backups, pr
 
 Activation requires stopping Docker/WSL safely and restarting them. `wsl --shutdown` stops all WSL distributions; coordinate with other active work before executing it. Then reopen Docker Desktop and rerun `./scripts/host/Test-RunnerHost.ps1` to verify the actual engine CPU/memory allocation. Activation has not been performed in this session.
 
+Update: activation was subsequently completed and verified on 2026-10-08 with `./scripts/host/Restart-RunnerDockerBackend.ps1`. This saved procedure refuses to proceed if other WSL distributions or containers are running. The engine now reports 8 CPUs and 15.62 GiB usable memory. Restarting only the Docker app had not applied the WSL changes.
+
 For rollback, restore the saved .wslconfig backup to the user's profile and repeat the coordinated restart. Do not commit the backup or machine-specific configuration.
