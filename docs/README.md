@@ -34,4 +34,4 @@
 | `tests/` | Meaningful automated checks when implemented |
 | `.local/` | Ignored secrets/runtime state; never versioned |
 
-Runner image sources, pinned image inputs, configuration validation, and local job-engine tests are available. GitHub App provisioning/controller implementation and live workflows remain pending.
+Runner images, configuration validation, GitHub App authentication, and the bounded controller are implemented. Personal self-hosted jobs have executed and disposable environments have been replaced. Successful full CI, organization rollout, unattended startup, and remaining lifecycle validation are pending; see the change log for current evidence.

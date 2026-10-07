@@ -1,5 +1,13 @@
 # Change log
 
+## 2026-10-08: User fixes and subsequent workflow checks
+
+- User reported removing Lua sudo and fixing Sonar/docs findings. Observed feature commit `451082e84b7c23268c70d2dfcf2318f5714dbbd1`: addon run `37703881745` now fails at Build Lua 5.1.5 with exit 127; docs runs `37703881909` and `37703881758` still fail Work item hierarchy with exit 1. Public annotations do not establish the underlying missing command or hierarchy error. These observations do not establish whether later unpushed fixes exist.
+- CI run `37703881764` had build-test and companion running on separate personal runners, with sonar queued. Success of the .NET fix and Sonar changes remains unverified.
+- Pool inspection confirmed two online, ephemeral, unprivileged personal runners with only job volumes, no published ports, and writable .NET install paths. Controller output confirmed used environments removed and fresh runners provisioned.
+- Review runs `37703978977` and `37703978773` succeeded on GitHub-hosted runners; all-workflow self-hosted migration is still incomplete.
+- Extended saved public status inspection with bounded `-Count` and commit/branch/creation metadata so fixes can be matched to exact runs rather than assumed from recency. No authentication or App permissions were changed.
+
 ## 2026-10-08: First existing CI outcomes and .NET image rollout
 
 - Existing addon, docs, and CI jobs all selected personal self-hosted runner identities and completed. The runs failed: Lua sudo dependency; companion/build-test .NET installation permissions; SonarCloud code findings; docs work-item hierarchy check (root cause not established from its generic annotation).

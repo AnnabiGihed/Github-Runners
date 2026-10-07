@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$ConfigPath='.local/targets.json', [string]$TargetId='personal-raidmanager', [long[]]$RunIds=@())
+param([string]$ConfigPath='.local/targets.json', [string]$TargetId='personal-raidmanager', [long[]]$RunIds=@(), [ValidateRange(1,100)][int]$Count=3)
 $ErrorActionPreference='Stop'
 $config=Get-Content $ConfigPath -Raw | ConvertFrom-Json
 $targets=@($config.targets | Where-Object id -eq $TargetId)
@@ -7,9 +7,9 @@ if ($targets.Count -ne 1 -or $targets[0].scope -ne 'repository') { throw 'Expect
 $target=$targets[0]
 $base="https://api.github.com/repos/$($target.owner)/$($target.repository)"
 $headers=@{Accept='application/vnd.github+json';'X-GitHub-Api-Version'='2026-03-10';'User-Agent'='runner-validation'}
-$selectedRuns=if ($RunIds.Count) { foreach ($runId in $RunIds) { Invoke-RestMethod -Uri "$base/actions/runs/$runId" -Headers $headers -TimeoutSec 30 } } else { (Invoke-RestMethod -Uri "$base/actions/runs?per_page=3" -Headers $headers -TimeoutSec 30).workflow_runs }
+$selectedRuns=if ($RunIds.Count) { foreach ($runId in $RunIds) { Invoke-RestMethod -Uri "$base/actions/runs/$runId" -Headers $headers -TimeoutSec 30 } } else { (Invoke-RestMethod -Uri "$base/actions/runs?per_page=$Count" -Headers $headers -TimeoutSec 30).workflow_runs }
 foreach ($run in $selectedRuns) {
-    [pscustomobject]@{RunId=$run.id;Workflow=$run.name;Status=$run.status;Conclusion=$run.conclusion;URL=$run.html_url}
+    [pscustomobject]@{RunId=$run.id;Workflow=$run.name;HeadSha=$run.head_sha;Branch=$run.head_branch;CreatedAt=$run.created_at;Status=$run.status;Conclusion=$run.conclusion;URL=$run.html_url}
     $jobs=Invoke-RestMethod -Uri "$base/actions/runs/$($run.id)/jobs?per_page=100" -Headers $headers -TimeoutSec 30
     foreach ($job in $jobs.jobs) {
         [pscustomobject]@{Job=$job.name;Status=$job.status;Conclusion=$job.conclusion;Runner=$job.runner_name;FailedSteps=(@($job.steps | Where-Object conclusion -eq 'failure' | ForEach-Object name) -join ',')}
