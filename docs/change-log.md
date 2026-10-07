@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Guided personal App setup
+
+- Added a screen-by-screen personal App walkthrough with authentication-only settings, selected RaidManager installation, distinct App/installation IDs, ignored PEM path, and live-validation prerequisites.
+- Verified current official registration, installation, and key-management documentation. User creation/installation has not yet been confirmed. No App was created or secret handled in this step.
+
 ## 2026-10-08: GitHub App authentication client
 
 - Added host-side RS256 JWT signing, installation identity/permission checks, narrowly scoped tokens, sanitized API errors, and live access-check tooling with token revocation.

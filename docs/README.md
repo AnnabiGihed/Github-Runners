@@ -14,6 +14,7 @@
 - [WSL resources and activation](runbooks/03-wsl-resources.md)
 - [Build and local test](runbooks/04-build-and-local-test.md)
 - [GitHub App setup](runbooks/05-github-app-setup.md)
+- [Personal account walkthrough](runbooks/06-personal-app-walkthrough.md)
 
 ## Repository layout
 
