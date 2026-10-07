@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: GitHub App authentication client
+
+- Added host-side RS256 JWT signing, installation identity/permission checks, narrowly scoped tokens, sanitized API errors, and live access-check tooling with token revocation.
+- Offline signature/tampering and installation-mismatch tests passed with a generated disposable RSA key; no real keys or HTTP calls were used. Configuration and whitespace checks passed.
+- Updated App setup instructions and decision 0012. Live access tests await two installed Apps and local key/config files. Warm-pool/controller lifecycle implementation remains pending.
+
 ## 2026-10-08: Runner image and job-local Docker test
 
 - Added official image digest resolution, locked Docker daemon/client and GitHub runner bases, narrow build context, LF shell policy, runner Dockerfile/entrypoint, and saved build tooling.
