@@ -15,6 +15,7 @@
 - [Build and local test](runbooks/04-build-and-local-test.md)
 - [GitHub App setup](runbooks/05-github-app-setup.md)
 - [Personal account walkthrough](runbooks/06-personal-app-walkthrough.md)
+- [Personal App access results](validation/2026-10-08-personal-app-access.md)
 
 ## Repository layout
 

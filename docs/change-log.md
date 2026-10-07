@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: Personal App live access verified
+
+- Found the user-provided PEM at the expected ignored path and restricted its ACL with saved tooling.
+- Outbound live validation succeeded outside the network-restricted sandbox: installation identity/permissions and repository runner API access verified; temporary token revoked. No secrets displayed or runner registered.
+- Recorded sanitized evidence in docs/validation/2026-10-08-personal-app-access.md. Workflow execution and controller lifecycle remain pending.
+
 ## 2026-10-08: Personal key placement check
 
 - User reported the downloaded key was saved. The expected .local/secrets/personal-app.pem file was not found, and the secrets directory was empty. Filename-only checks found no PEM file under the repository or Downloads. No key contents were read.
