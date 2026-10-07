@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: Preinstalled workflow toolchain
+
+- Added build-essential, unzip, OpenSSH client, gzip, Git, curl, jq, gh, and CA certificates to the runner Dockerfile's root build stage; runtime remains USER runner. Retained pinned Docker CLI/Buildx and per-job daemon access. Rationale and mutable apt-version limitation are recorded in decision 0014.
+- Built the image successfully and verified all required commands, Docker 29.8.2/Buildx 0.37.2, gh 2.45.0, non-root execution, writable-path environment, and successful C compilation/execution in a network-disabled smoke container. No claim yet that the Lua workflow or PostgreSQL tests pass.
+- Requested graceful controller stop for rollout. Busy CI is allowed to finish; replacement session must start only after drain/cleanup completes. Companion in CI run 37703881764 succeeded, confirming that job's .NET path fix. Build-test was still running; Sonar failed an HTTPS-enforcement finding.
+
 ## 2026-10-08: User fixes and subsequent workflow checks
 
 - User reported removing Lua sudo and fixing Sonar/docs findings. Observed feature commit `451082e84b7c23268c70d2dfcf2318f5714dbbd1`: addon run `37703881745` now fails at Build Lua 5.1.5 with exit 127; docs runs `37703881909` and `37703881758` still fail Work item hierarchy with exit 1. Public annotations do not establish the underlying missing command or hierarchy error. These observations do not establish whether later unpushed fixes exist.

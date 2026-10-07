@@ -6,5 +6,7 @@ foreach ($image in @($images.runner,$images.client)) { if ($image -notmatch '@sh
 if ($LASTEXITCODE -ne 0) { throw 'Runner image build failed.' }
 & docker run --rm --network none --entrypoint bash local/ephemeral-github-runner:dev -c 'test -x ./config.sh && test -x ./run.sh && command -v jq && docker --version && docker buildx version && test "$(id -u)" -ne 0'
 if ($LASTEXITCODE -ne 0) { throw 'Runner image smoke check failed.' }
+& docker run --rm --network none --entrypoint bash local/ephemeral-github-runner:dev -c 'set -eu; for tool in make gcc g++ gh git jq curl ssh gzip unzip docker; do command -v "$tool"; done; printf "int main(void){return 0;}\n" > /tmp/runner-check.c; gcc /tmp/runner-check.c -o /tmp/runner-check; /tmp/runner-check; gh --version; test "$(id -u)" -ne 0'
+if ($LASTEXITCODE -ne 0) { throw 'Workflow toolchain smoke check failed.' }
 & docker run --rm --network none --entrypoint bash local/ephemeral-github-runner:dev -c 'test "$DOTNET_INSTALL_DIR" = /job-work/.dotnet'
 if ($LASTEXITCODE -ne 0) { throw 'User-local .NET install path check failed.' }

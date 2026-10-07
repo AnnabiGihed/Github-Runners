@@ -15,6 +15,10 @@ SonarCloud reported code-smell annotations; do not remove or bypass the gate to 
 
 ## Update and validation
 
+The user identified native build and CLI requirements. Install `build-essential`, `unzip`, `openssh-client`, `gzip`, `git`, `curl`, `jq`, `gh`, and CA certificates as root during image construction, then restore `USER runner`. Alternatives are workflow-time sudo (rejected to preserve unprivileged execution) or separate toolchain images (future option for different targets). Docker CLI/Buildx continue to come from the digest-pinned client image and use the existing per-job daemon. No host socket or published port is added. GitHub CLI installation grants no credentials; authenticated jobs must supply their scoped workflow token, never the provisioning App key/token.
+
+Ubuntu distribution packages use the base image's configured repositories rather than a new third-party repository. Package versions are resolved at build time, so base digests alone do not make apt resolution reproducible; rebuilds can receive updates and require renewed smoke checks. The build check verifies command availability and compiles/executes a small C program as the unprivileged user. Exact installed versions can be inspected in the built image; version-locked package snapshots remain future work.
+
 Controller sessions pin the local runner image content ID, so rebuilding does not change active jobs or subsequent provisioning within that same session. Apply the new image after requesting a graceful controller stop, letting busy jobs drain, removing the stop flag, and starting another session. Do not forcibly remove running jobs for an image update.
 
 Saved public-status tooling reads run/job metadata and capped annotations with token-pattern redaction, not raw workflow logs. Initial verification can race resource cleanup; the inspector reports a changing pool instead of claiming a missing container is still online. Full successful CI, real container actions/services, and four concurrent jobs remain unverified.
