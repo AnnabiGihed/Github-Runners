@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Personal installation identifiers configured
+
+- User supplied App ID 5230141 and installation ID 169036597. Created ignored personal-only .local/targets.json using saved initialization tooling; retained two job slots and the four-job host cap.
+- Structural validation and ignore checks passed. Created the local secrets directory, but no private key has been received or read. Live installation/access checks remain pending.
+
 ## 2026-10-08: Guided personal App setup
 
 - Added a screen-by-screen personal App walkthrough with authentication-only settings, selected RaidManager installation, distinct App/installation IDs, ignored PEM path, and live-validation prerequisites.

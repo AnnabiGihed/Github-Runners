@@ -36,6 +36,10 @@ Return to the App settings, scroll to Private keys, and select Generate a privat
 
 Provide the non-secret App ID and installation ID to finish local configuration, or enter them yourself. The organization target must be excluded from a personal-only configuration until its credentials are ready; the validator otherwise rejects its null IDs. Never use AllowIncomplete for a live access check.
 
+Saved initialization tooling: `./scripts/config/Initialize-PersonalTarget.ps1 -AppId YOUR_APP_ID -InstallationId YOUR_INSTALLATION_ID`. It creates an ignored personal-only configuration from the repository example, creates the secrets directory, validates structure, and refuses to overwrite existing configuration.
+
+Session progress on 2026-10-08: the user reported App ID 5230141 and installation ID 169036597. Initialized personal-only local configuration with those identifiers; structural validation passed and Git ignore coverage was verified. Real installation ownership/permissions remain unverified until a local private key is available.
+
 ## Validate
 
 Once a personal-only .local/targets.json and protected PEM are in place, run PowerShell 7.2+ from the repository root:
