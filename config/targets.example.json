@@ -1,5 +1,6 @@
 {
   "schemaVersion": 1,
+  "hostMaxRunners": 4,
   "targets": [
     {
       "id": "personal-raidmanager",

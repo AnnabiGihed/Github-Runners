@@ -9,6 +9,8 @@
 - [Initial validation](validation/2026-10-07-foundation.md)
 - [Host preflight](runbooks/01-host-preflight.md)
 - [Reusable target onboarding](runbooks/02-target-onboarding.md)
+- [Host preflight results](validation/2026-10-08-host-preflight.md)
+- [Dedicated Linux VM option](architecture/linux-vm-option.md)
 
 ## Repository layout
 

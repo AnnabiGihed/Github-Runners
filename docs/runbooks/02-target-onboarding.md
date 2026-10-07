@@ -8,6 +8,7 @@ Status: implementation plan; no App or runners created. Repeat these steps for e
 4. Install the App under the intended owner with the narrowest supported access. Record non-secret App and installation IDs. Store its private key under ignored `.local/secrets/` with restricted host access. Job containers must never receive that key.
 5. Copy `config/targets.example.json` to ignored `.local/targets.json`. Add a unique target ID, correct scope/owner/repository, App references, routing labels, and approved runner limit. Null App IDs in the example are deliberately incomplete. Labels do not grant repository access.
 6. Validate configuration and installation access using the forthcoming tooling. Start runners only after provisioning, isolation, and cleanup checks pass.
+   Structural validation is now available: `./scripts/config/Test-RunnerConfiguration.ps1 -Path .local/targets.json`. To check the incomplete example, add `-AllowIncomplete`; that mode does not authorize deployment. The sum of all target limits must not exceed `hostMaxRunners`. Live installation checks are still forthcoming.
 7. Run a trusted smoke workflow against the intended label. Verify a second job uses a fresh runner and workspace, and record disposal and recovery evidence.
 
 Adding a target should require configuration and GitHub installation authorization rather than code edits or target-specific image builds. The controller, schema validator, deployment files, and smoke workflow are not implemented yet.

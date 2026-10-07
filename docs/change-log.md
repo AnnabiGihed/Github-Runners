@@ -1,5 +1,12 @@
 # Change log
 
+## 2026-10-08: Verified Docker preflight and configuration guard
+
+- Verified local Linux Docker engine access outside the sandbox: 2 CPUs, 3.83 GiB memory, no containers. Recorded WSL2 and host memory; measured approximately 414.7 GiB free on D:.
+- Added a reusable configuration validator and host-wide four-job cap; negative tests and whitespace checks passed.
+- User approved an 8 CPU/16 GiB resource budget; no settings have been applied. Documented the dedicated Linux VM option for explanation; selection remains pending.
+- No App credentials, runner jobs, VM, or job-local engine have been provisioned.
+
 ## 2026-10-08: Execution recovered and commit preparation
 
 - After the app restart, Git inspection and shell checks succeeded; confirmed the configured Github-Runners remote and main branch.
