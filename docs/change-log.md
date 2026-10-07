@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: Personal key placement check
+
+- User reported the downloaded key was saved. The expected .local/secrets/personal-app.pem file was not found, and the secrets directory was empty. Filename-only checks found no PEM file under the repository or Downloads. No key contents were read.
+- Added saved Windows ACL-hardening tooling for a regular key file; real key hardening and live GitHub checks remain pending the file's actual location.
+- Verified ACL hardening on a disposable non-secret local fixture and removed it afterward; inheritance disabled and current-user-only access verified. Whitespace checks passed.
+
 ## 2026-10-08: Personal installation identifiers configured
 
 - User supplied App ID 5230141 and installation ID 169036597. Created ignored personal-only .local/targets.json using saved initialization tooling; retained two job slots and the four-job host cap.

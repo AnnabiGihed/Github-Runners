@@ -50,6 +50,8 @@ Once a personal-only .local/targets.json and protected PEM are in place, run Pow
 
 The script validates installation identity and permissions, reads the runner API, and attempts to revoke its temporary token. It does not register runners or execute workflows. Record sanitized results in docs/validation after the actual check.
 
+Before validation, restrict the actual PEM file ACL with `./scripts/github/Protect-RunnerAppKey.ps1 -Path .local/secrets/personal-app.pem`. This disables inherited permissions and grants only the current provisioning user; it does not print key contents. Run as the Windows identity that will operate the provisioner.
+
 ## Rationale and authoritative references
 
 Authentication-only App: no inbound webhook, OAuth flow, user permissions, PAT, or client secret. Repository Administration write is needed for the runner API and is broad, so limit installation to selected repositories. Only-on-this-account matches the current personal ownership boundary; other owners need their own installations and App visibility selection.
