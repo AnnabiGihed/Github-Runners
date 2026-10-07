@@ -12,7 +12,12 @@ foreach ($target in $config.targets) {
         $credential=Get-RunnerInstallationToken -Target $target -RepositoryRoot $repoRoot
         $path=if ($target.scope -eq 'repository') { "/repos/$($target.owner)/$($target.repository)/actions/runners?per_page=1" } else { "/orgs/$($target.owner)/actions/runners?per_page=1" }
         $null=Invoke-RunnerGitHubApi -Method GET -Path $path -Token $credential.token
-        [pscustomobject]@{Target=$target.id;InstallationOwnerVerified=$true;RunnerApiReadVerified=$true;RegistrationVerified=$false}
+        $private=$null
+        if ($target.scope -eq 'repository') {
+            $metadata=Invoke-RunnerGitHubApi -Method GET -Path "/repos/$($target.owner)/$($target.repository)" -Token $credential.token
+            $private=$metadata.private
+        }
+        [pscustomobject]@{Target=$target.id;InstallationOwnerVerified=$true;RunnerApiReadVerified=$true;RegistrationVerified=$false;PrivateRepository=$private}
     } finally {
         if ($credential) {
             # Revoke the short-lived validation credential after use.

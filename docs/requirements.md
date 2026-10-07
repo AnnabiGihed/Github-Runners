@@ -25,6 +25,8 @@ Supplied by the user on 2026-10-08:
 
 These are requested targets, not evidence of verified access, visibility, App installations, or runner registration. Keep target names in deployment configuration, never hardcoded into reusable tooling.
 
+Progress on 2026-10-08: personal App access and two temporary online ephemeral registrations have been verified; probe environments were removed afterward. RaidManager is currently public, which the user says is temporary during configuration. The intended final routing is all RaidManager workloads on these runners. Real workflow execution, production trigger policy, and organization setup remain pending.
+
 ## Interpretation
 
 Ephemeral means at most one job per runner plus destruction of its container and writable job state. A permanently running trusted controller is compatible with disposable job runners. No PAT does not mean no credentials: a GitHub App private key and short-lived GitHub-issued credentials are needed.

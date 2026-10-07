@@ -16,6 +16,7 @@
 - [GitHub App setup](runbooks/05-github-app-setup.md)
 - [Personal account walkthrough](runbooks/06-personal-app-walkthrough.md)
 - [Personal App access results](validation/2026-10-08-personal-app-access.md)
+- [Controller and real-job smoke procedure](runbooks/07-controller-and-smoke.md)
 
 ## Repository layout
 

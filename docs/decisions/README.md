@@ -14,5 +14,6 @@
 | [0010](0010-trusted-privileged-job-docker.md) | Accepted; implementation pending | Trusted privileged job-local Docker on Desktop; no dedicated VM |
 | [0011](0011-pinned-images-and-job-engine.md) | Local tooling implemented; live provisioning pending | Pinned official images and disposable Unix-socket Docker smoke tests |
 | [0012](0012-github-app-authentication-client.md) | Offline tested; live validation pending | Host-side App JWT, narrowed tokens, and installation access checks |
+| [0013](0013-warm-pool-controller.md) | Two personal registrations verified; workload tests pending | Bounded host warm pool and ownership-checked lifecycle |
 
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.

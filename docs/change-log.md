@@ -1,5 +1,13 @@
 # Change log
 
+## 2026-10-08: Personal controller registration verified
+
+- Added bounded host warm-pool controller with exclusive lock, token renewal, ownership-checked persisted cleanup, startup-failure limit, idle replacement, and shutdown drain. Corrected helper command-name collision and single-label serialization exposed by initial tests.
+- Verified two temporary personal runners online, locally configured ephemeral, unprivileged, volume-only, and without published host ports. Tests used random labels without defaults; no normal workflow ran. Both environments were removed after the bounded test.
+- Added per-slot read-only bundled-runtime mounts and completed another bounded provisioning/cleanup cycle; real container jobs remain untested. Pool inspection was adjusted for concurrent cleanup.
+- Saved a manual two-job smoke workflow template and controller runbook. RaidManager is temporarily public and final routing is intended to be fully self-hosted, per the user. GitHub CLI OAuth is unavailable; no PAT or workflow-write permission fallback was used, and the template was not published to RaidManager.
+- Production runners are not left running. Real jobs, replacement after a job, service/container actions, failure recovery, durable diagnostics, unattended startup, and organization rollout remain pending.
+
 ## 2026-10-08: Personal App live access verified
 
 - Found the user-provided PEM at the expected ignored path and restricted its ACL with saved tooling.

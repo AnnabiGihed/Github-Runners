@@ -1,0 +1,42 @@
+name: Ephemeral runner smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  docker-and-services:
+    runs-on: [self-hosted, linux, pc-personal]
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        slot: [1, 2]
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - name: Fresh environment and identity
+        shell: bash
+        run: |
+          echo "Runner: $RUNNER_NAME"
+          test ! -f "$RUNNER_WORKSPACE/previous-job-marker"
+          touch "$RUNNER_WORKSPACE/previous-job-marker"
+          test "$(id -u)" -ne 0
+      - name: Docker build
+        shell: bash
+        run: |
+          printf 'FROM scratch\nLABEL smoke=true\n' | docker build -t smoke-job -
+      - name: Service connectivity
+        shell: bash
+        run: |
+          for attempt in $(seq 1 30); do
+            if docker run --rm --network host redis:7-alpine redis-cli -h 127.0.0.1 ping | grep -q PONG; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Container action
+        uses: docker://alpine:3.22
+        with:
+          entrypoint: /bin/sh
+          args: -c "echo container-action-ok"
