@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Native desktop runner manager
+
+- Added WPF setup/targets, status and maintenance screens with asynchronous allowlisted script actions, protected key import, validated atomic target edits, guarded removal, workflow-label copying and a local shortcut generator. Decision 0018 and runbook 09 record prerequisites, security choices, rollback and limits.
+- Isolated transaction tests and actual window/dispatcher/status smoke passed; read-only live pool worker displayed busy production registrations. Existing personal jobs/configuration were left running. Full fresh/organization GUI onboarding and previously listed acceptance checks remain unperformed.
+
 ## 2026-10-08: Reusable onboarding guide refresh
 
 - Corrected stale onboarding planning language. Documented existing repository/organization configuration, protected keys, validation, graceful activation, labels, capacity redistribution and rollback. Decision 0005 distinguishes implemented tooling from unperformed additional-target acceptance. No live configuration changed.

@@ -1,0 +1,63 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Ephemeral Runner Manager" Width="1080" Height="780" MinWidth="900" MinHeight="680" WindowStartupLocation="CenterScreen" Background="#F3F5F9" FontFamily="Segoe UI" FontSize="14">
+  <Window.Resources>
+    <Style TargetType="Button"><Setter Property="Padding" Value="14,8"/><Setter Property="Margin" Value="0,0,8,8"/><Setter Property="MinHeight" Value="36"/></Style>
+    <Style TargetType="TextBox"><Setter Property="Padding" Value="8"/><Setter Property="Margin" Value="0,4,0,10"/></Style>
+    <Style TargetType="ComboBox"><Setter Property="Padding" Value="8"/><Setter Property="Margin" Value="0,4,0,10"/></Style>
+  </Window.Resources>
+  <Grid Margin="24">
+    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="180"/></Grid.RowDefinitions>
+    <StackPanel Margin="0,0,0,18">
+      <TextBlock Text="Ephemeral Runner Manager" FontSize="28" FontWeight="SemiBold" Foreground="#14243C"/>
+      <TextBlock Text="Docker runners on this PC · GitHub App authentication · outbound connections only" Foreground="#536176" Margin="0,6,0,0"/>
+    </StackPanel>
+    <TabControl x:Name="Tabs" Grid.Row="1" Padding="16" Background="White">
+      <TabItem Header="Setup &amp; targets">
+        <Grid Margin="8">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="250"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,20,0"><StackPanel>
+            <TextBlock Text="Configured targets" FontWeight="SemiBold" Margin="0,0,0,8"/>
+            <ListBox x:Name="TargetList" Height="150" DisplayMemberPath="id"/>
+            <WrapPanel Margin="0,12,0,0"><Button x:Name="NewTarget" Content="New"/><Button x:Name="ReloadTargets" Content="Reload"/><Button x:Name="RemoveTarget" Content="Remove"/></WrapPanel>
+            <TextBlock x:Name="Capacity" TextWrapping="Wrap" Foreground="#536176"/>
+            <TextBlock Text="Keep this PC awake and your Windows account signed in. GitHub labels route jobs; they do not grant access." TextWrapping="Wrap" Margin="0,18,0,0" Foreground="#536176"/>
+            <Button x:Name="OpenGuide" Content="Open setup guide" Margin="0,18,0,0"/>
+            <Button x:Name="OpenGitHub" Content="Create / manage GitHub App" Margin="0,8,0,0"/>
+          </StackPanel></ScrollViewer>
+          <DockPanel Grid.Column="1">
+            <WrapPanel DockPanel.Dock="Bottom" Margin="0,12,0,0"><Button x:Name="SaveTarget" Content="Validate &amp; save"/><Button x:Name="SetupTarget" Content="Set up &amp; start"/><Button x:Name="ApplyConfig" Content="Apply configuration"/><Button x:Name="CopyLabels" Content="Copy workflow labels"/></WrapPanel>
+          <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+              <TextBlock Text="Add a repository or organization" FontSize="20" FontWeight="SemiBold"/>
+              <TextBlock Text="Create and install your GitHub App first. Supply its IDs and private-key file below." TextWrapping="Wrap" Margin="0,6,0,14" Foreground="#536176"/>
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,12,0"><TextBlock Text="Target ID"/><TextBox x:Name="TargetId"/><TextBlock Text="GitHub owner"/><TextBox x:Name="Owner"/><TextBlock Text="App ID"/><TextBox x:Name="AppId"/><TextBlock Text="Routing label"/><TextBox x:Name="RoutingLabel"/></StackPanel>
+                <StackPanel Grid.Column="1"><TextBlock Text="Scope"/><ComboBox x:Name="Scope" SelectedIndex="0"><ComboBoxItem Content="repository"/><ComboBoxItem Content="organization"/></ComboBox><TextBlock Text="Repository (personal scope)"/><TextBox x:Name="Repository"/><TextBlock Text="Installation ID"/><TextBox x:Name="InstallationId"/><TextBlock Text="Concurrent jobs"/><TextBox x:Name="Slots" Text="1"/></StackPanel>
+              </Grid>
+              <TextBlock Text="GitHub App private key (.pem) — never uploaded to jobs"/>
+              <DockPanel><Button x:Name="BrowseKey" Content="Browse…" DockPanel.Dock="Right" Margin="8,4,0,10"/><TextBox x:Name="KeyPath" IsReadOnly="True"/></DockPanel>
+              <CheckBox x:Name="TrustPublic" Content="I authorize trusted workflows from this public repository on privileged job Docker" Margin="0,2,0,14"/>
+              <TextBlock Text="For a new target, supply a key. When editing, leave the key blank to retain it. Total target capacity must fit the existing host limit." TextWrapping="Wrap" Foreground="#536176" Margin="0,0,0,14"/>
+            </StackPanel>
+          </ScrollViewer></DockPanel>
+        </Grid>
+      </TabItem>
+      <TabItem Header="Status">
+        <DockPanel Margin="8">
+          <WrapPanel DockPanel.Dock="Top"><Button x:Name="RefreshStatus" Content="Refresh service"/><Button x:Name="RefreshPool" Content="Refresh live runners &amp; jobs"/></WrapPanel>
+          <TextBox x:Name="StatusText" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Text="Refresh to view service health, registrations and whether runners are busy."/>
+        </DockPanel>
+      </TabItem>
+      <TabItem Header="Maintenance">
+        <StackPanel Margin="8">
+          <TextBlock Text="Keep runners healthy" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14"/>
+          <WrapPanel><Button x:Name="CheckHost" Content="Check Docker &amp; resources"/><Button x:Name="BuildImage" Content="Rebuild image"/><Button x:Name="InstallService" Content="Install login supervision"/></WrapPanel>
+          <WrapPanel><Button x:Name="StartService" Content="Start / resume"/><Button x:Name="StopService" Content="Stop &amp; drain"/><Button x:Name="RestartService" Content="Graceful restart"/></WrapPanel>
+          <TextBlock Text="After rebuilding the image, use Graceful restart to deploy it. Stop &amp; drain requests shutdown; busy jobs are preserved. Refresh status before removing targets. Closing this app leaves supervision running." TextWrapping="Wrap" Foreground="#536176" Margin="0,12,0,0"/>
+          <TextBlock Text="The app does not change Docker/WSL resource settings, expose ports, delete old keys or bypass workflow checks. Set up Docker Desktop and PowerShell 7.4+ before use." TextWrapping="Wrap" Foreground="#536176" Margin="0,14,0,0"/>
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+    <TextBlock x:Name="Activity" Grid.Row="2" Text="Ready" Margin="0,12,0,6" FontWeight="SemiBold"/>
+    <TextBox x:Name="Output" Grid.Row="3" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="Consolas" Background="#14243C" Foreground="#E9EFF8"/>
+  </Grid>
+</Window>

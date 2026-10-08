@@ -23,3 +23,5 @@
 | [0017](0017-official-github-cli-package.md) | Accepted; image verified | Official signed GitHub APT source; CLI minimum 2.101.0 |
 
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.
+
+Desktop manager: [0018](0018-windows-desktop-manager.md) — implemented; native WPF interface, guarded configuration transactions and existing-script orchestration. Live fresh/organization GUI onboarding remains unverified.
