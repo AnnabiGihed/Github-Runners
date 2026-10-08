@@ -19,6 +19,7 @@
 - [Controller and real-job smoke procedure](runbooks/07-controller-and-smoke.md)
 - [Unattended personal operations](runbooks/08-personal-operations.md)
 - [Personal operations validation](validation/2026-10-08-personal-operations.md)
+- [Official GitHub CLI rollout](validation/2026-10-08-github-cli.md)
 
 ## Repository layout
 

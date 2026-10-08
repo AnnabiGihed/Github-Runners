@@ -20,4 +20,6 @@
 | [0015](0015-personal-four-slot-capacity.md) | Accepted; workload validation pending | Four personal slots while organization is inactive; retain four-slot host cap |
 | [0016](0016-unattended-personal-operation.md) | Implemented; personal operational checks passed | Login supervisor, continuous operation, retained diagnostics, recovery and resource budgets |
 
+| [0017](0017-official-github-cli-package.md) | Accepted; image verified | Official signed GitHub APT source; CLI minimum 2.101.0 |
+
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.

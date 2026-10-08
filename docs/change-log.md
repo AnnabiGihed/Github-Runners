@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Official GitHub CLI package
+
+- Replaced distribution `gh` with GitHub's signed APT repository, scoped keyring and verified published checksum. Official candidate 2.102.0 passed build-time and offline minimum 2.101.0 checks and existing image toolchain checks.
+- Added live CLI version inspection and performed a graceful scheduled-service image rollout. Decision 0017 records provenance, package selection, update policy and alternatives; CLI validation records the resolved image and live results. Organization remains deferred.
+
 ## 2026-10-08: Continuous personal operation and recovery acceptance
 
 - Deferred organization rollout as requested. Installed interactive-user logon supervision and a five-minute watchdog; production no longer expires hourly. Persistent stop/resume, exclusive locks, Docker readiness/relaunch and state-preserving error retries are saved and documented in decision 0016/runbook 08.

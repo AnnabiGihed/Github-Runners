@@ -42,6 +42,8 @@ After reviewed controller/script changes, `./scripts/host/Restart-RunnerService.
 
 ## Diagnostics and validation
 
+The runner Dockerfile installs `gh` from GitHub's official signed APT repository, with a verified keyring checksum and minimum version 2.101.0 (decision 0017). Build with `./scripts/images/Build-RunnerImage.ps1`, gracefully restart with `./scripts/host/Restart-RunnerService.ps1`, then run `./scripts/controller/Test-RunnerPool.ps1` to inspect live CLI versions. Use an uncached Docker build when deliberately refreshing otherwise unchanged package layers, supplying the same digest build arguments from `config/docker-images.lock.json`. Reverify the official published checksum if key rotation causes a build failure.
+
 Ignored `.local/diagnostics/` contains redacted runner/worker tails and supervisor status logs, protected by current-user-only access. Retention is seven days/200 MiB; each runner output is at most 2 MiB. Never commit or share raw diagnostic files. Redaction cannot identify every arbitrary application secret. Logs are checkpointed every minute and before deletion; power loss can lose recent entries.
 
 ```powershell
