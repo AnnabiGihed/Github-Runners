@@ -34,6 +34,17 @@ foreach ($target in $config.targets) { [pscustomobject]@{Target=$target.id;Priva
     $acl=Get-Acl (Join-Path $testRoot $config.targets[0].privateKeyFile)
     Assert ($acl.AreAccessRulesProtected -and @($acl.Access | Where-Object { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -ne $sid }).Count -eq 0) 'Imported key is not private.'
     $before=[IO.File]::ReadAllText($configPath)
+    $advanced=Get-DesktopTargets
+    $advanced.targets[0] | Add-Member -NotePropertyName scalingMode -NotePropertyValue demand
+    $advanced.targets[0] | Add-Member -NotePropertyName pollSeconds -NotePropertyValue 60
+    $advanced | ConvertTo-Json -Depth 15 | Set-Content $configPath
+    $request.keySource=''
+    Save-DesktopTarget $request | Out-Null
+    Assert ((Get-DesktopTargets).targets[0].scalingMode -eq 'demand' -and (Get-DesktopTargets).targets[0].pollSeconds -eq 60) 'GUI edit lost demand configuration.'
+    $request | Add-Member -NotePropertyName scalingMode -NotePropertyValue warm
+    Save-DesktopTarget $request | Out-Null
+    Assert ((Get-DesktopTargets).targets[0].scalingMode -eq 'warm') 'GUI mode selection was ignored.'
+    $before=[IO.File]::ReadAllText($configPath)
     $request.keySource='';$request.maxRunners=5
     Reject { Save-DesktopTarget $request } 'Over-capacity edit accepted.'
     Assert ([IO.File]::ReadAllText($configPath) -ceq $before) 'Rejected edit changed working configuration.'

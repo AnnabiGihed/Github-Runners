@@ -33,6 +33,8 @@
                 <StackPanel Margin="0,0,12,0"><TextBlock Text="Target ID"/><TextBox x:Name="TargetId"/><TextBlock Text="GitHub owner"/><TextBox x:Name="Owner"/><TextBlock Text="App ID"/><TextBox x:Name="AppId"/><TextBlock Text="Routing label"/><TextBox x:Name="RoutingLabel"/></StackPanel>
                 <StackPanel Grid.Column="1"><TextBlock Text="Scope"/><ComboBox x:Name="Scope" SelectedIndex="0"><ComboBoxItem Content="repository"/><ComboBoxItem Content="organization"/></ComboBox><TextBlock Text="Repository (personal scope)"/><TextBox x:Name="Repository"/><TextBlock Text="Installation ID"/><TextBox x:Name="InstallationId"/><TextBlock Text="Concurrent jobs"/><TextBox x:Name="Slots" Text="1"/></StackPanel>
               </Grid>
+              <CheckBox x:Name="DemandScaling" Content="Create runners only when matching jobs are queued (zero while idle)" Margin="0,2,0,8"/>
+              <TextBlock Text="Demand mode needs GitHub App Actions read permission and adds startup delay. Unchecked keeps runners ready between jobs." TextWrapping="Wrap" Foreground="#536176" Margin="0,0,0,10"/>
               <TextBlock Text="GitHub App private key (.pem) — never uploaded to jobs"/>
               <DockPanel><Button x:Name="BrowseKey" Content="Browse…" DockPanel.Dock="Right" Margin="8,4,0,10"/><TextBox x:Name="KeyPath" IsReadOnly="True"/></DockPanel>
               <CheckBox x:Name="TrustPublic" Content="I authorize trusted workflows from this public repository on privileged job Docker" Margin="0,2,0,14"/>
@@ -50,7 +52,7 @@
       <TabItem Header="Maintenance">
         <StackPanel Margin="8">
           <TextBlock Text="Keep runners healthy" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14"/>
-          <TextBlock Text="Four slots normally mean eight containers: four runners and four isolated Docker daemons. Fresh replacements stay ready between jobs. Shared images and recent build cache also use disk space." TextWrapping="Wrap" Foreground="#536176" Margin="0,0,0,14"/>
+          <TextBlock Text="Each active slot uses a runner and an isolated Docker daemon. Warm mode keeps replacements ready; demand mode creates them for queued jobs and returns to zero while idle. Shared images and build cache remain reusable." TextWrapping="Wrap" Foreground="#536176" Margin="0,0,0,14"/>
           <WrapPanel><Button x:Name="CheckHost" Content="Check Docker &amp; resources"/><Button x:Name="CleanDisk" Content="Clean obsolete disk cache"/><Button x:Name="BuildImage" Content="Rebuild image"/><Button x:Name="InstallService" Content="Install login supervision"/></WrapPanel>
           <WrapPanel><Button x:Name="StartService" Content="Start / resume"/><Button x:Name="StopService" Content="Stop &amp; clean"/><Button x:Name="RestartService" Content="Graceful restart"/></WrapPanel>
           <TextBlock Text="After rebuilding the image, use Graceful restart to deploy it. Stop &amp; clean waits for cleanup; busy jobs are preserved and retried after completion. Docker stays running; shared images and build caches are retained. Refresh status before removing targets. Closing this app leaves supervision running." TextWrapping="Wrap" Foreground="#536176" Margin="0,12,0,0"/>

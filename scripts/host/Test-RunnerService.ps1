@@ -25,6 +25,7 @@ $privateLogs=($logAcl.AreAccessRulesProtected -and @($logAcl.Access | Where-Obje
     SupervisorLockHeld=(Test-LockHeld (Join-Path $stateDir 'supervisor.lock'))
     ControllerLockHeld=(Test-LockHeld (Join-Path $stateDir 'controller.lock'))
     StopRequested=(Test-Path -LiteralPath (Join-Path $stateDir 'stop'))
+    DemandSnapshots=if ($state.PSObject.Properties['demandSnapshots']) { @($state.demandSnapshots) } else { @() }
     RecordedSlots=@($state.slots).Count
     ValidationSlots=@($state.slots | Where-Object { $_.PSObject.Properties['validation'] -and $_.validation }).Count
     StateAgeSeconds=[Math]::Round(([DateTime]::UtcNow-(Get-Item -LiteralPath $stateFile).LastWriteTimeUtc).TotalSeconds)

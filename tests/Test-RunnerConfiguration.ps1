@@ -12,6 +12,13 @@ function Assert-Rejected {
 Assert-Rejected { & $validator -Path $example }
 $fixturePath = Join-Path ([IO.Path]::GetTempPath()) ("runner-config-test-" + [guid]::NewGuid().ToString('N') + '.json')
 try {
+    foreach ($field in @('scalingMode','pollSeconds')) {
+        $fixture=Get-Content $example -Raw | ConvertFrom-Json
+        $value=if ($field -eq 'scalingMode') { 'invalid' } else { 1 }
+        $fixture.targets[0] | Add-Member -NotePropertyName $field -NotePropertyValue $value -Force
+        $fixture | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $fixturePath
+        Assert-Rejected { & $validator -Path $fixturePath -AllowIncomplete }
+    }
     $fixture = Get-Content $example -Raw | ConvertFrom-Json
     $fixture.targets[1].id = $fixture.targets[0].id
     $fixture | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $fixturePath

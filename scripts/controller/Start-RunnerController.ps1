@@ -18,6 +18,7 @@ if ($CleanupOnly -and ($Continuous -or $ResetStopRequest)) { throw 'Cleanup-only
 & (Join-Path $repoRoot 'scripts/config/Test-RunnerConfiguration.ps1') -Path $ConfigPath | Out-Null
 Import-Module (Join-Path $repoRoot 'scripts/github/RunnerGitHub.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'RunnerDiagnostics.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'RunnerDemand.psm1') -Force
 $config=Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
 $resources=Get-Content (Join-Path $repoRoot 'config/runner-resources.json') -Raw | ConvertFrom-Json
 $images=Get-Content (Join-Path $repoRoot 'config/docker-images.lock.json') -Raw | ConvertFrom-Json
@@ -32,6 +33,7 @@ $state=if (Test-Path $statePath) { Get-Content $statePath -Raw | ConvertFrom-Jso
 $tokens=@{}
 $attachments=@{}
 $failedStarts=@{}
+$demand=@{}
 $diagnosticPath=Join-Path $repoRoot '.local/diagnostics'
 Initialize-RunnerDiagnosticDirectory -Path $diagnosticPath
 $lastDiagnostics=[DateTimeOffset]::MinValue
@@ -42,6 +44,11 @@ if (-not $CleanupOnly) {
 }
 function Save-State {
     $temp="$statePath.tmp"
+    $polling=@(foreach ($id in $demand.Keys) {
+        $snapshot=$demand[$id]
+        [pscustomobject]@{targetId=$id;valid=$snapshot.valid;queued=$snapshot.queued;lastSuccessUtc=$snapshot.lastSuccess;nextPollUtc=$snapshot.next.ToString('o')}
+    })
+    $state | Add-Member -NotePropertyName demandSnapshots -NotePropertyValue $polling -Force
     $state | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $temp -Encoding utf8
     Move-Item -LiteralPath $temp -Destination $statePath -Force
 }
@@ -205,7 +212,44 @@ try {
             if (-not $running -or ($slot.seenOnline -and -not $remote) -or (-not $slot.seenOnline -and [DateTimeOffset]::Parse($slot.created) -lt [DateTimeOffset]::UtcNow.AddMinutes(-3)) -or ($remote -and -not $remote.busy -and [DateTimeOffset]::Parse($slot.created) -lt [DateTimeOffset]::UtcNow.AddMinutes(-$IdleMinutes))) { Cleanup $slot }
         }
         foreach ($target in $config.targets) {
-            while (@($state.slots | Where-Object targetId -eq $target.id).Count -lt $target.maxRunners) { Provision $target }
+            $desired=[int]$target.maxRunners
+            $demandMode=(-not $ValidationOnly -and $target.PSObject.Properties['scalingMode'] -and $target.scalingMode -eq 'demand')
+            if ($demandMode) {
+                if (-not $demand.ContainsKey($target.id)) { $demand[$target.id]=@{next=[DateTimeOffset]::MinValue;valid=$false;queued=0;lastSuccess=$null} }
+                $snapshot=$demand[$target.id]
+                if ([DateTimeOffset]::UtcNow -ge $snapshot.next) {
+                    $interval=if ($target.PSObject.Properties['pollSeconds']) { [int]$target.pollSeconds } else { 60 }
+                    $snapshot.next=[DateTimeOffset]::UtcNow.AddSeconds($interval)
+                    $snapshot.valid=$false
+                    try {
+                        # Refresh management token through the same host-only cache.
+                        $null=Api $target GET '?per_page=1'
+                        $snapshot.queued=Get-RunnerQueueDemand -Target $target -Request {
+                            param($path)
+                            Invoke-RunnerGitHubApi -Method GET -Path $path -Token $tokens[$target.id].token
+                        }
+                        $snapshot.valid=$true
+                        $snapshot.lastSuccess=[DateTimeOffset]::UtcNow.ToString('o')
+                        Write-Output "Queue snapshot for $($target.id): $($snapshot.queued) matching queued jobs (bounded by capacity)."
+                    } catch { Write-Warning 'Queue snapshot unavailable; retain existing capacity and retry without scaling.' }
+                }
+                if (-not $snapshot.valid) { continue }
+                $busy=0
+                foreach ($slot in @($state.slots | Where-Object targetId -eq $target.id)) {
+                    $remote=Remote-Runner $target $slot.name
+                    if ($remote -and $remote.busy) { $busy++ }
+                }
+                $desired=Get-RunnerDesiredSlots -Queued $snapshot.queued -Busy $busy -Maximum $target.maxRunners
+                # Never remove a busy job. A two-minute startup grace absorbs assignment races.
+                foreach ($slot in @($state.slots | Where-Object targetId -eq $target.id)) {
+                    if (@($state.slots | Where-Object targetId -eq $target.id).Count -le $desired) { break }
+                    $remote=Remote-Runner $target $slot.name
+                    if ($remote -and $remote.busy) { continue }
+                    if ([DateTimeOffset]::Parse($slot.created) -gt [DateTimeOffset]::UtcNow.AddSeconds(-120)) { continue }
+                    try { Cleanup $slot } catch { Write-Warning 'Scale-down pending; environment retained for safe retry.' }
+                }
+            }
+            while (@($state.slots | Where-Object targetId -eq $target.id).Count -lt $desired) { Provision $target }
         }
         Save-State
         if ([DateTimeOffset]::UtcNow - $lastDiagnostics -ge [TimeSpan]::FromMinutes(1)) {

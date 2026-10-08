@@ -44,3 +44,5 @@ docker system df
 ```
 
 Decision: [0022](../decisions/0022-nondisruptive-reliability-review.md).
+
+Follow-up in decision 0023: restart now resumes after the controller releases its lock, even when the stopping supervisor still holds its lock and busy slots remain. The busy-preserving handoff regression fixture passed. A controller that never releases its lock can still leave stop requested on timeout; explicit resume is still required in that case.

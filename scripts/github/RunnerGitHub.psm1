@@ -60,6 +60,7 @@ function Assert-RunnerInstallation {
     if ($Installation.suspended_at) { throw 'App installation is suspended.' }
     $permission = if ($Target.scope -eq 'repository') { 'administration' } else { 'organization_self_hosted_runners' }
     if (-not $Installation.permissions.PSObject.Properties[$permission] -or $Installation.permissions.$permission -ne 'write') { throw 'Required runner management permission is missing.' }
+    if ($Target.PSObject.Properties['scalingMode'] -and $Target.scalingMode -eq 'demand' -and (-not $Installation.permissions.PSObject.Properties['actions'] -or $Installation.permissions.actions -notin @('read','write'))) { throw 'Demand scaling requires approved GitHub App repository Actions read permission.' }
     if ($Target.scope -eq 'organization' -and $Installation.account.type -ne 'Organization') { throw 'Organization target is not an organization installation.' }
 }
 
@@ -73,6 +74,7 @@ function Get-RunnerInstallationToken {
         $installation = Invoke-RunnerGitHubApi -Method GET -Path "/app/installations/$($Target.installationId)" -Token $jwt
         Assert-RunnerInstallation -Target $Target -Installation $installation
         $permissions = if ($Target.scope -eq 'repository') { @{administration='write'} } else { @{organization_self_hosted_runners='write'} }
+        if ($Target.PSObject.Properties['scalingMode'] -and $Target.scalingMode -eq 'demand') { $permissions.actions='read' }
         $body = @{permissions=$permissions}
         if ($Target.scope -eq 'repository') { $body.repositories=@($Target.repository) }
         # Caller must assign the result; never display it or persist it.

@@ -13,6 +13,8 @@ $ids = @{}
 $identities = @{}
 $total = 0
 foreach ($target in $config.targets) {
+    if ($target.PSObject.Properties['scalingMode'] -and $target.scalingMode -cnotin @('warm','demand')) { throw 'scalingMode must be warm or demand.' }
+    if ($target.PSObject.Properties['pollSeconds'] -and (($target.pollSeconds -isnot [int] -and $target.pollSeconds -isnot [long]) -or $target.pollSeconds -lt 60 -or $target.pollSeconds -gt 300)) { throw 'pollSeconds must be an integer from 60 to 300.' }
     if ($target.id -notmatch '^[a-z0-9][a-z0-9-]{0,47}$') { throw 'Invalid target id.' }
     if ($ids.ContainsKey($target.id)) { throw 'Duplicate target id.' }
     $ids[$target.id] = $true

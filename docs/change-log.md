@@ -212,3 +212,9 @@ No GitHub resources, Docker images/containers, firewall rules, or global skills 
 ## 2026-10-08 — Reliability review
 
 Reviewed lifecycle, supervision, authentication, desktop, diagnostics and maintenance without stopping Docker or production. Fixed cache provenance selection, misleading desktop active status and CLI inspection race. Seven fixture suites passed; four live runners online with isolation/resource checks passing. Documented open restart-timeout, oversized-diagnostic and output-memory risks plus outstanding failure acceptance in docs/reviews/2026-10-08-reliability.md; decision 0022. No 100% uptime claim.
+
+## 2026-10-08 — Demand scaling trial
+
+Added optional per-target demand mode with outbound Actions-read polling, custom-label matching, current-attempt pagination, bounded desired capacity and safe idle scale-down; warm mode remains default and rollback. User approved App permission and live queue read passed. Policy/controller transition fixtures, restart handoff, configuration/App/GUI guards and existing cleanup/resource/diagnostic tests passed. Live activation is in progress with busy environments retained; final acceptance evidence is in runbook 10. No Docker shutdown or PAT.
+
+Trial checkpoint: live zero-to-demand provisioning verified at 10:22 UTC; addon and docs runs succeeded on fresh runners, and addon environment teardown was verified. Pool shrank to one active CI job with zero queued demand; idle-zero after CI completion remains pending. Desktop checkbox and read-only UI smoke passed. See runbook 10 for exact run links and limits.

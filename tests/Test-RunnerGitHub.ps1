@@ -18,6 +18,12 @@ try {
 $target=[pscustomobject]@{appId=1;installationId=2;owner='example';scope='organization'}
 $installation=[pscustomobject]@{app_id=1;id=2;account=[pscustomobject]@{login='example';type='Organization'};suspended_at=$null;permissions=[pscustomobject]@{organization_self_hosted_runners='write'}}
 Assert-RunnerInstallation -Target $target -Installation $installation
+$target | Add-Member -NotePropertyName scalingMode -NotePropertyValue demand
+$rejected=$false
+try { Assert-RunnerInstallation -Target $target -Installation $installation } catch { $rejected=$true }
+if (-not $rejected) { throw 'Demand mode accepted an installation without Actions read.' }
+$installation.permissions | Add-Member -NotePropertyName actions -NotePropertyValue read
+Assert-RunnerInstallation -Target $target -Installation $installation
 foreach ($case in @('owner','permission','suspended','app')) {
     $copy=$installation | ConvertTo-Json -Depth 10 | ConvertFrom-Json
     switch ($case) {

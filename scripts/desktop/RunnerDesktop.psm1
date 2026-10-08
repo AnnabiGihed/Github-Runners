@@ -33,6 +33,11 @@ function Save-DesktopTarget {
             labels=@($InputTarget.labels);maxRunners=[int]$InputTarget.maxRunners
             trustedPublicWorkflows=[bool]$InputTarget.trustedPublicWorkflows
         }
+        # Preserve advanced scaling options when editing an existing target in the GUI.
+        foreach ($field in @('scalingMode','pollSeconds')) {
+            if ($old.Count -and $old[0].PSObject.Properties[$field]) { $target | Add-Member -NotePropertyName $field -NotePropertyValue $old[0].$field }
+        }
+        if ($InputTarget.PSObject.Properties['scalingMode']) { $target | Add-Member -NotePropertyName scalingMode -NotePropertyValue $InputTarget.scalingMode -Force }
         $config.targets=@($config.targets | Where-Object id -ne $target.id)+@($target)
         $temporary=Join-Path $ui ("candidate-"+[guid]::NewGuid().ToString('N')+'.json')
         $config | ConvertTo-Json -Depth 15 | Set-Content -LiteralPath $temporary -Encoding utf8

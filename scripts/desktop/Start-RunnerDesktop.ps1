@@ -15,6 +15,8 @@ foreach ($name in @('Tabs','TargetList','NewTarget','ReloadTargets','RemoveTarge
     $ui[$name]=$window.FindName($name)
     if ($null -eq $ui[$name]) { throw "Missing UI control: $name" }
 }
+$ui.DemandScaling=$window.FindName('DemandScaling')
+if ($null -eq $ui.DemandScaling) { throw 'Missing demand scaling control.' }
 $script:operation=$null
 $buttons=@('RemoveTarget','SaveTarget','SetupTarget','ApplyConfig','RefreshStatus','RefreshPool','CheckHost','CleanDisk','BuildImage','InstallService','StartService','StopService','RestartService','NewTarget','ReloadTargets')
 function Reload-Targets {
@@ -27,11 +29,12 @@ function Reset-Form {
     foreach ($name in @('TargetId','Owner','Repository','AppId','InstallationId','RoutingLabel','KeyPath')) { $ui[$name].Text='' }
     $ui.TargetId.IsReadOnly=$false;$ui.Owner.IsReadOnly=$false;$ui.Repository.IsReadOnly=$false;$ui.Scope.IsEnabled=$true
     $ui.Slots.Text='1';$ui.Scope.SelectedIndex=0;$ui.TrustPublic.IsChecked=$false
+    $ui.DemandScaling.IsChecked=$false
 }
 function Get-FormRequest {
     $app=0L;$installation=0L;$slots=0
     if (-not [long]::TryParse($ui.AppId.Text,[ref]$app) -or $app -lt 1 -or -not [long]::TryParse($ui.InstallationId.Text,[ref]$installation) -or $installation -lt 1 -or -not [int]::TryParse($ui.Slots.Text,[ref]$slots) -or $slots -lt 1) { throw 'App ID, installation ID and concurrent jobs must be positive integers.' }
-    return @{id=$ui.TargetId.Text.Trim();owner=$ui.Owner.Text.Trim();repository=$ui.Repository.Text.Trim();scope=$ui.Scope.SelectedItem.Content;appId=$app;installationId=$installation;maxRunners=$slots;labels=@($ui.RoutingLabel.Text.Split(',',[StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object Trim);keySource=$ui.KeyPath.Text;trustedPublicWorkflows=($ui.TrustPublic.IsChecked -eq $true)}
+    return @{id=$ui.TargetId.Text.Trim();owner=$ui.Owner.Text.Trim();repository=$ui.Repository.Text.Trim();scope=$ui.Scope.SelectedItem.Content;appId=$app;installationId=$installation;maxRunners=$slots;labels=@($ui.RoutingLabel.Text.Split(',',[StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object Trim);keySource=$ui.KeyPath.Text;trustedPublicWorkflows=($ui.TrustPublic.IsChecked -eq $true);scalingMode=if ($ui.DemandScaling.IsChecked -eq $true) { 'demand' } else { 'warm' }}
 }
 function Start-Action {
     param([string]$Action,$Request=$null)
@@ -67,6 +70,7 @@ $ui.TargetList.Add_SelectionChanged({
     $ui.RoutingLabel.Text=$target.labels -join ',';$ui.Slots.Text=[string]$target.maxRunners;$ui.KeyPath.Text=''
     $ui.Scope.SelectedIndex=if ($target.scope -eq 'organization') { 1 } else { 0 }
     $ui.TrustPublic.IsChecked=($target.PSObject.Properties.Name -contains 'trustedPublicWorkflows' -and $target.trustedPublicWorkflows)
+    $ui.DemandScaling.IsChecked=($target.PSObject.Properties.Name -contains 'scalingMode' -and $target.scalingMode -eq 'demand')
     $ui.TargetId.IsReadOnly=$true;$ui.Owner.IsReadOnly=$true;$ui.Repository.IsReadOnly=$true;$ui.Scope.IsEnabled=$false
 })
 $ui.Scope.Add_SelectionChanged({ $ui.Repository.IsEnabled=($ui.Scope.SelectedIndex -eq 0);$ui.TrustPublic.IsEnabled=($ui.Scope.SelectedIndex -eq 0) })

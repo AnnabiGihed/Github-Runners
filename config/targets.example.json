@@ -11,6 +11,8 @@
       "installationId": null,
       "privateKeyFile": ".local/secrets/personal-app.pem",
       "labels": ["pc-personal"],
+      "scalingMode": "warm",
+      "pollSeconds": 60,
       "maxRunners": 2
     },
     {
@@ -22,6 +24,8 @@
       "installationId": null,
       "privateKeyFile": ".local/secrets/organization-app.pem",
       "labels": ["pc-organization"],
+      "scalingMode": "warm",
+      "pollSeconds": 60,
       "maxRunners": 2
     }
   ]

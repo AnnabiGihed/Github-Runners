@@ -33,3 +33,5 @@ Keep Docker running: [0020](0020-keep-docker-and-reusable-assets.md) — superse
 Disk cleanup: [0021](0021-scoped-disk-cleanup.md) — exact obsolete-cache selection, approved old records and labeled aged image versions; supervision stays active.
 
 Reliability review: [0022](0022-nondisruptive-reliability-review.md) — explicit cache approvals, accurate supervision status and documented open recovery findings.
+
+Demand scaling: [0023](0023-outbound-demand-scaling.md) — optional outbound App-authenticated queue polling, zero idle capacity, retained busy jobs and warm-mode rollback.
