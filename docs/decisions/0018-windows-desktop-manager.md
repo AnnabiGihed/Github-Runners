@@ -25,4 +25,6 @@ No PAT, inbound port, App key job mount, automatic key deletion or workflow gate
 
 ## Validation and sources
 
+Launcher compatibility update: the public launcher and shortcut generator accept Windows PowerShell 5.1 and hand off to a verified PowerShell 7.4+ runtime. Prefer existing installations and the configured supervisor executable rather than silently install dependencies or lower the app's runtime requirement. Use .NET Framework-compatible process arguments in the bootstrap; app/worker scripts continue to require 7.4+. An explicit runtime parameter supports nonstandard installations. Actual 5.1-to-7 desktop smoke and shortcut generation passed.
+
 See [desktop validation](../validation/2026-10-08-desktop-app.md), [desktop runbook](../runbooks/09-desktop-app.md), [Microsoft WPF overview](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/overview/) and [WPF threading model](https://learn.microsoft.com/en-us/dotnet/desktop/wpf/advanced/threading-model). Existing GitHub authentication endpoints/permissions are unchanged; their existing reviewed sources apply.

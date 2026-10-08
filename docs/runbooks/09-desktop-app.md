@@ -10,7 +10,9 @@ Prerequisites: Windows, PowerShell 7.4+, Docker Desktop in Linux mode, the clone
 ./scripts/desktop/New-RunnerDesktopShortcut.ps1
 ```
 
-The generated shortcut is `.local/desktop/Ephemeral Runner Manager.lnk`. You may pin/copy it where convenient. It refers to this checkout and the PowerShell executable used to create it; regenerate after moving the checkout or runtime. Direct launch: `pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1`.
+The launcher and shortcut generator also work from Windows PowerShell 5.1: they locate and verify PowerShell 7.4+ before handing off. Discovery checks the current compatible runtime, `pwsh.exe` on PATH, standard installation paths, then the installed runner task's runtime. To select a custom installation, pass `-PowerShellPath 'C:\path\to\pwsh.exe'`. Missing/incompatible runtimes fail with guidance; no software is automatically downloaded.
+
+The generated shortcut is `.local/desktop/Ephemeral Runner Manager.lnk`. You may pin/copy it where convenient. It refers to this checkout and the resolved PowerShell 7 executable; regenerate after moving the checkout or runtime. Direct launch: `pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1`.
 
 The app runs as your signed-in account without automatic elevation. It is a native window, not a web service. No installation outside this repository is performed. Closing it leaves the scheduled runner service running.
 
@@ -39,6 +41,7 @@ Protected `.local/desktop/targets.previous.json` holds the previous configuratio
 
 ```powershell
 ./tests/Test-RunnerDesktop.ps1
+./tests/Test-RunnerDesktopLauncher.ps1
 pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1 -SmokeTest
 ```
 

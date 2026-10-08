@@ -1,5 +1,9 @@
 # Change log
 
+## 2026-10-08: Windows PowerShell desktop launch compatibility
+
+- Fixed the public launcher and shortcut generator to run under Windows PowerShell 5.1 and hand off to a verified existing PowerShell 7.4+ runtime. Added runtime discovery, explicit-path support and actionable missing-runtime errors; app/controller requirements remain unchanged. Recorded the choice in decision 0018 and added actual legacy-shell regression checks.
+
 ## 2026-10-08: Native desktop runner manager
 
 - Added WPF setup/targets, status and maintenance screens with asynchronous allowlisted script actions, protected key import, validated atomic target edits, guarded removal, workflow-label copying and a local shortcut generator. Decision 0018 and runbook 09 record prerequisites, security choices, rollback and limits.
