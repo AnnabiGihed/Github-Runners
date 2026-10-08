@@ -1,0 +1,9 @@
+# Stopped runner cleanup — 2026-10-08
+
+Before repair: service Ready, neither runtime lock held, no persistent stop, four recorded environments. Four runner containers were exited (143), while all four paired daemons remained running at approximately 33–38 MiB each. Last scheduled task result was 3221225786; exact interruption cause was not proven. Docker/WSL memory caches can exceed daemon process usage.
+
+Executed `./scripts/host/Stop-RunnerService.ps1 -DrainSeconds 60` against that state. It completed through cleanup-only reconciliation. Afterward: zero recorded slots, persistent stop true, locks free and task Ready. `docker ps -a` showed no containers; owner-filtered volume and network listings were empty. Protected diagnostic files increased from 150 to 154, preserving runner tails before destruction. No replacement runners were provisioned. The user's stopped state was preserved.
+
+`tests/Test-RunnerStop.ps1` passed using a disposable fixture and substituted Docker/controller effects: interrupted-controller cleanup, retained busy-state refusal, unrelated-container shutdown refusal, empty-engine Desktop shutdown request, and two cleanup-only supervisor retries for a busy-then-finished environment. The first fixture attempt exposed a test-variable scoping issue; after correction it passed. These substitutes did not stop the real Docker engine.
+
+Updated desktop rendered and passed its read-only status-worker smoke test. Actual Docker Desktop shutdown/RAM measurement was not performed; the separate confirmation-based action is available. Long real-job completion after stop was represented by a fixture, not a newly dispatched production job. No global Docker prune, WSL shutdown, resource-setting change or organization rollout was performed.

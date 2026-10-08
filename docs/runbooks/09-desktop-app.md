@@ -35,6 +35,10 @@ An existing target can change capacity, labels and App references, but its ID/sc
 - Remove requires Stop & drain, released runtime locks and zero recorded environments. Busy/draining state blocks removal. At least one configured target must remain. Keys are retained; separately revoke/delete obsolete keys after all jobs drain.
 - Errors and results appear below the tabs. Operations are serialized and displayed at completion; long builds/drains can take several minutes. Do not terminate the app or child process during a transaction. No arbitrary commands or raw logs are accepted/displayed.
 
+Stop & clean now waits for graceful shutdown and reconciles retained environments even after an interrupted supervisor. If busy jobs exceed the wait, cleanup remains pending and supervision retries without replenishment; refresh status and retry rather than force-delete containers. Stop & release memory additionally confirms Docker Desktop shutdown, verifies zero recorded environments and no running containers, then stops Desktop. It refuses when other containers or unverified engine state remain. Start / resume lets the supervisor restore Desktop. Close and reopen the manager to load updated scripts/UI.
+
+Docker/WSL may retain cache memory after containers are deleted. Backend shutdown can release Docker memory, but exact recovery depends on Windows/WSL and other workloads. The action never runs global `wsl --shutdown`, drops system caches or prunes images. See decision 0019.
+
 Protected `.local/desktop/targets.previous.json` holds the previous configuration after a successful edit/removal. For rollback, stop/drain, restore that file as `.local/targets.json`, validate structure/access, then start/resume. Never commit local requests, keys, runtime state, logs or screenshots. There is no automatic configuration sync to GitHub.
 
 ## Checks
@@ -42,6 +46,7 @@ Protected `.local/desktop/targets.previous.json` holds the previous configuratio
 ```powershell
 ./tests/Test-RunnerDesktop.ps1
 ./tests/Test-RunnerDesktopLauncher.ps1
+./tests/Test-RunnerStop.ps1
 pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1 -SmokeTest
 ```
 

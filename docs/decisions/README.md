@@ -25,3 +25,5 @@
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.
 
 Desktop manager: [0018](0018-windows-desktop-manager.md) — implemented; native WPF interface, guarded configuration transactions and existing-script orchestration. Live fresh/organization GUI onboarding remains unverified.
+
+Stopped cleanup: [0019](0019-stopped-runner-cleanup-and-memory.md) — cleanup-only recovery, persistent teardown retries and guarded optional Docker shutdown for memory release.

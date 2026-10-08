@@ -11,12 +11,12 @@ Import-Module (Join-Path $root 'scripts/controller/RunnerDiagnostics.psm1') -For
 $reader=[Xml.XmlReader]::Create((Join-Path $root 'infra/desktop/MainWindow.xaml'))
 try { $window=[Windows.Markup.XamlReader]::Load($reader) } finally { $reader.Dispose() }
 $ui=@{}
-foreach ($name in @('Tabs','TargetList','NewTarget','ReloadTargets','RemoveTarget','Capacity','OpenGuide','OpenGitHub','TargetId','Owner','AppId','RoutingLabel','Scope','Repository','InstallationId','Slots','BrowseKey','KeyPath','TrustPublic','SaveTarget','SetupTarget','ApplyConfig','CopyLabels','RefreshStatus','RefreshPool','StatusText','CheckHost','BuildImage','InstallService','StartService','StopService','RestartService','Activity','Output')) {
+foreach ($name in @('Tabs','TargetList','NewTarget','ReloadTargets','RemoveTarget','Capacity','OpenGuide','OpenGitHub','TargetId','Owner','AppId','RoutingLabel','Scope','Repository','InstallationId','Slots','BrowseKey','KeyPath','TrustPublic','SaveTarget','SetupTarget','ApplyConfig','CopyLabels','RefreshStatus','RefreshPool','StatusText','CheckHost','BuildImage','InstallService','StartService','StopService','ReleaseMemory','RestartService','Activity','Output')) {
     $ui[$name]=$window.FindName($name)
     if ($null -eq $ui[$name]) { throw "Missing UI control: $name" }
 }
 $script:operation=$null
-$buttons=@('RemoveTarget','SaveTarget','SetupTarget','ApplyConfig','RefreshStatus','RefreshPool','CheckHost','BuildImage','InstallService','StartService','StopService','RestartService','NewTarget','ReloadTargets')
+$buttons=@('RemoveTarget','SaveTarget','SetupTarget','ApplyConfig','RefreshStatus','RefreshPool','CheckHost','BuildImage','InstallService','StartService','StopService','ReleaseMemory','RestartService','NewTarget','ReloadTargets')
 function Reload-Targets {
     $config=Get-DesktopTargets
     $ui.TargetList.ItemsSource=@($config.targets)
@@ -73,6 +73,9 @@ $ui.Scope.Add_SelectionChanged({ $ui.Repository.IsEnabled=($ui.Scope.SelectedInd
 $ui.BrowseKey.Add_Click({ $dialog=[Microsoft.Win32.OpenFileDialog]::new();$dialog.Filter='GitHub App private key (*.pem)|*.pem';if ($dialog.ShowDialog($window)) { $ui.KeyPath.Text=$dialog.FileName } })
 $ui.SaveTarget.Add_Click({ Invoke-FormAction 'Save' })
 $ui.SetupTarget.Add_Click({ Invoke-FormAction 'Setup' })
+$ui.ReleaseMemory.Add_Click({
+    if ([Windows.MessageBox]::Show($window,'Stop runners, finish cleanup, then stop Docker Desktop to release its memory? This action refuses if other containers are running. Other WSL distributions will remain untouched.','Stop and release memory','YesNo','Question') -eq 'Yes') { Start-Action 'ReleaseMemory' }
+})
 $ui.CopyLabels.Add_Click({
     $labels=@($ui.RoutingLabel.Text.Split(',',[StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object Trim)
     if (-not $labels.Count -or @($labels | Where-Object { $_ -notmatch '^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$' }).Count) { $ui.Output.Text='Enter valid routing labels before copying.';return }

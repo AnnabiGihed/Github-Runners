@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Stopped cleanup and memory release
+
+- Found four exited runner containers and running job daemons after supervision stopped without a persistent stop. Saved cleanup-only controller mode and stop helper; executed them to remove all recorded runner/daemon/volume/network resources while retaining diagnostics and stopped state.
+- Supervisor now retries cleanup after stop until retained jobs/environments disappear, without replenishment. Added optional guarded Docker Desktop shutdown and desktop Stop & release memory action; no actual backend shutdown or global WSL/cache settings were changed in this work. Regression fixture and desktop smoke passed; see decision 0019 and validation.
+
 ## 2026-10-08: Windows PowerShell desktop launch compatibility
 
 - Fixed the public launcher and shortcut generator to run under Windows PowerShell 5.1 and hand off to a verified existing PowerShell 7.4+ runtime. Added runtime discovery, explicit-path support and actionable missing-runtime errors; app/controller requirements remain unchanged. Recorded the choice in decision 0018 and added actual legacy-shell regression checks.

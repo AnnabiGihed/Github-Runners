@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([Parameter(Mandatory)][ValidateSet('Status','Pool','Host','Build','Install','Start','Stop','Apply','Save','Remove','Setup')][string]$Action)
+param([Parameter(Mandatory)][ValidateSet('Status','Pool','Host','Build','Install','Start','Stop','ReleaseMemory','Apply','Save','Remove','Setup')][string]$Action)
 $ErrorActionPreference='Stop'
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 Set-Location -LiteralPath $root
@@ -25,8 +25,13 @@ try {
             Host { & ./scripts/host/Test-RunnerHost.ps1 | Format-List | Out-String }
             Build { & ./scripts/images/Build-RunnerImage.ps1 2>&1 | Out-String }
             Install { & ./scripts/host/Install-RunnerScheduledTask.ps1 }
-            Start { & ./scripts/config/Test-RunnerConfiguration.ps1 -Path .local/targets.json | Out-Null; Test-DesktopCapacity; & ./scripts/host/Start-RunnerService.ps1 -Resume }
-            Stop { & ./scripts/controller/Request-RunnerControllerStop.ps1; 'Drain requested. Busy jobs may remain; refresh status before removal.' }
+            Start {
+                & ./scripts/config/Test-RunnerConfiguration.ps1 -Path .local/targets.json | Out-Null
+                & ./scripts/host/Start-RunnerService.ps1 -Resume
+                'Resume requested. The supervisor will start Docker if needed; refresh status and check resources once Docker is ready.'
+            }
+            Stop { & ./scripts/host/Stop-RunnerService.ps1 }
+            ReleaseMemory { & ./scripts/host/Release-RunnerMemory.ps1 }
             Apply { Test-DesktopCapacity; & ./scripts/host/Restart-RunnerService.ps1 }
             Save { Save-DesktopTarget -InputTarget $request }
             Remove { Remove-DesktopTarget -Id $request.id }

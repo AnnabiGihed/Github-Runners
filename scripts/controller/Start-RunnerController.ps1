@@ -7,12 +7,14 @@ param(
     [ValidateRange(0,3600)][int]$DrainSeconds=300,
     [switch]$ValidationOnly,
     [switch]$Continuous,
+    [switch]$CleanupOnly,
     [string]$ValidationApiFailureFile,
     [switch]$ResetStopRequest
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 if ($ValidationApiFailureFile -and -not $ValidationOnly) { throw 'API failure injection is available only for validation probes.' }
+if ($CleanupOnly -and ($Continuous -or $ResetStopRequest)) { throw 'Cleanup-only cannot replenish or reset a stop request.' }
 & (Join-Path $repoRoot 'scripts/config/Test-RunnerConfiguration.ps1') -Path $ConfigPath | Out-Null
 Import-Module (Join-Path $repoRoot 'scripts/github/RunnerGitHub.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'RunnerDiagnostics.psm1') -Force
@@ -33,8 +35,11 @@ $failedStarts=@{}
 $diagnosticPath=Join-Path $repoRoot '.local/diagnostics'
 Initialize-RunnerDiagnosticDirectory -Path $diagnosticPath
 $lastDiagnostics=[DateTimeOffset]::MinValue
-$runnerImageId=(& docker image inspect local/ephemeral-github-runner:dev --format '{{.Id}}').Trim()
-if ($LASTEXITCODE -ne 0 -or $runnerImageId -notmatch '^sha256:[a-f0-9]{64}$') { $lock.Dispose(); throw 'Build the runner image before starting the controller.' }
+$runnerImageId=$null
+if (-not $CleanupOnly) {
+    $runnerImageId=(& docker image inspect local/ephemeral-github-runner:dev --format '{{.Id}}').Trim()
+    if ($LASTEXITCODE -ne 0 -or $runnerImageId -notmatch '^sha256:[a-f0-9]{64}$') { $lock.Dispose(); throw 'Build the runner image before starting the controller.' }
+}
 function Save-State {
     $temp="$statePath.tmp"
     $state | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $temp -Encoding utf8
@@ -174,8 +179,10 @@ function Provision($target) {
 }
 try {
     Save-State
-    $hostInfo=& (Join-Path $repoRoot 'scripts/host/Test-RunnerHost.ps1') | ConvertFrom-Json
-    $null=& (Join-Path $repoRoot 'scripts/config/Test-RunnerResources.ps1') -Path (Join-Path $repoRoot 'config/runner-resources.json') -MaxRunners $config.hostMaxRunners -EngineCPUs $hostInfo.CPUs -EngineMemoryMiB ($hostInfo.EngineMemoryGiB*1024)
+    if (-not $CleanupOnly) {
+        $hostInfo=& (Join-Path $repoRoot 'scripts/host/Test-RunnerHost.ps1') | ConvertFrom-Json
+        $null=& (Join-Path $repoRoot 'scripts/config/Test-RunnerResources.ps1') -Path (Join-Path $repoRoot 'config/runner-resources.json') -MaxRunners $config.hostMaxRunners -EngineCPUs $hostInfo.CPUs -EngineMemoryMiB ($hostInfo.EngineMemoryGiB*1024)
+    }
     # Remove only recorded stale environments; never reuse a partially used workspace.
     foreach ($slot in @($state.slots)) {
         $remote=Remote-Runner (Target-For $slot) $slot.name
@@ -183,7 +190,7 @@ try {
         Cleanup $slot
     }
     $end=[DateTimeOffset]::UtcNow.AddSeconds($RunSeconds)
-    while (($Continuous -or [DateTimeOffset]::UtcNow -lt $end) -and -not (Test-Path (Join-Path $stateDir 'stop'))) {
+    while (-not $CleanupOnly -and ($Continuous -or [DateTimeOffset]::UtcNow -lt $end) -and -not (Test-Path (Join-Path $stateDir 'stop'))) {
         foreach ($slot in @($state.slots)) {
             $target=Target-For $slot
             $remote=Remote-Runner $target $slot.name

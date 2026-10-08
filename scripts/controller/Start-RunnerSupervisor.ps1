@@ -21,9 +21,21 @@ function Write-ServiceEvent([string]$Message) {
 try {
     Write-ServiceEvent 'Supervisor started; continuous operation under the interactive Windows account.'
     $nextDesktopAttempt=[DateTimeOffset]::MinValue
-    while (-not (Test-Path (Join-Path $stateDir 'stop'))) {
+    while ($true) {
+        $stopping=Test-Path (Join-Path $stateDir 'stop')
+        if ($stopping) {
+            $statePath=Join-Path $stateDir 'state.json'
+            if (-not (Test-Path $statePath)) { break }
+            $pending=Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+            if (@($pending.slots).Count -eq 0) { break }
+        }
         & docker info --format '{{.ServerVersion}}' 2>$null | Out-Null
         if ($LASTEXITCODE -ne 0) {
+            if ($stopping) {
+                Write-ServiceEvent 'Stopped provisioning; cleanup awaits Docker availability. Recorded environments retained.'
+                Start-Sleep -Seconds 30
+                continue
+            }
             $desktopPath=Join-Path $env:ProgramFiles 'Docker/Docker/Docker Desktop.exe'
             if ([DateTimeOffset]::UtcNow -ge $nextDesktopAttempt -and (Test-Path -LiteralPath $desktopPath)) {
                 Start-Process -FilePath $desktopPath -WindowStyle Hidden
@@ -35,7 +47,8 @@ try {
         }
         $nextDesktopAttempt=[DateTimeOffset]::MinValue
         try {
-            & (Join-Path $PSScriptRoot 'Start-RunnerController.ps1') -ConfigPath $ConfigPath -Continuous -DrainSeconds 300 *>&1 | ForEach-Object {
+            $mode=if ($stopping) { @{CleanupOnly=$true} } else { @{Continuous=$true} }
+            & (Join-Path $PSScriptRoot 'Start-RunnerController.ps1') -ConfigPath $ConfigPath @mode -DrainSeconds 300 *>&1 | ForEach-Object {
                 Write-ServiceEvent ([string]$_)
             }
         } catch {
@@ -43,6 +56,10 @@ try {
             Write-ServiceEvent 'Controller exited with an error; state retained, retry after 60 seconds.'
         }
         if (-not (Test-Path (Join-Path $stateDir 'stop'))) { Start-Sleep -Seconds 60 }
+        elseif (Test-Path (Join-Path $stateDir 'state.json')) {
+            $remaining=Get-Content (Join-Path $stateDir 'state.json') -Raw | ConvertFrom-Json
+            if (@($remaining.slots).Count) { Write-ServiceEvent 'Stop requested; continuing cleanup retries without replenishment.';Start-Sleep -Seconds 30 }
+        }
     }
     Write-ServiceEvent 'Supervisor stopped after persistent stop request.'
 } finally { $lock.Dispose() }
