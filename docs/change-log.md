@@ -1,5 +1,12 @@
 # Change log
 
+## 2026-10-08: Four-slot personal capacity and toolchain rollout
+
+- Interpreted the user's four-concurrent-job request as four personal slots within the existing host cap of four, while the organization is inactive. Added a reusable validated capacity setter and decision 0015; live local configuration validates with MaximumJobs=4. The two-plus-two example remains appropriate when both targets are configured.
+- Prior controller reached its drain timeout and retained the busy job's environment. After CI completed, started a new bounded one-hour session to clean the retained environment and provision from the verified toolchain image. No busy job was forcefully removed.
+- The completed CI's build-test failed Coverage comment with exit 127; companion passed and Sonar failed an HTTPS finding. New toolchain availability does not yet establish successful workflow retests.
+- New session provisioned four runners; configuration tests passed. Pool inspection confirmed online ephemeral/unprivileged/volume-only/no-published-port runners, but job turnover prevented a simultaneous four-online snapshot. Adjusted the inspector to omit starting/completing resources rather than fail on their missing configuration. Four simultaneous successful jobs and representative resource-load measurements remain unverified.
+
 ## 2026-10-08: Preinstalled workflow toolchain
 
 - Added build-essential, unzip, OpenSSH client, gzip, Git, curl, jq, gh, and CA certificates to the runner Dockerfile's root build stage; runtime remains USER runner. Retained pinned Docker CLI/Buildx and per-job daemon access. Rationale and mutable apt-version limitation are recorded in decision 0014.

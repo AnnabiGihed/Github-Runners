@@ -15,12 +15,13 @@ foreach ($target in $config.targets) {
             $inspection=& docker inspect $slot.name 2>$null
             if ($LASTEXITCODE -ne 0) { Write-Warning 'Pool changed during inspection; rerun while controller is active.'; continue }
             $container=($inspection | ConvertFrom-Json)[0]
+            if (-not $container.State.Running -or $remote.Count -ne 1) { Write-Warning 'Runner starting or completing; snapshot omitted.'; continue }
             if ($container.HostConfig.Privileged -or $container.Config.User -in @('root','0','')) { throw 'Runner must be unprivileged.' }
             if (@($container.Mounts | Where-Object Type -ne 'volume').Count) { throw 'Host mount detected.' }
             if ($container.HostConfig.PortBindings.PSObject.Properties.Count) { throw 'Published host ports detected.' }
-            $configText=(& docker exec $slot.name cat /home/runner/.runner | Out-String).TrimStart([char]0xFEFF)
+            $configText=(& docker exec $slot.name cat /home/runner/.runner 2>$null | Out-String).TrimStart([char]0xFEFF)
+            if ($LASTEXITCODE -ne 0) { Write-Warning 'Runner changed before configuration inspection; snapshot omitted.'; continue }
             $runnerConfig=$configText | ConvertFrom-Json
-            if ($LASTEXITCODE -ne 0) { throw 'Runner configuration inspection failed.' }
             & docker exec $slot.name bash -c 'test "$DOTNET_INSTALL_DIR" = /job-work/.dotnet && mkdir -p "$DOTNET_INSTALL_DIR" && test -w "$DOTNET_INSTALL_DIR"' | Out-Null
             $dotnetWritable=($LASTEXITCODE -eq 0)
             [pscustomobject]@{Target=$target.id;Registered=($remote.Count -eq 1);Online=($remote.Count -eq 1 -and $remote[0].status -eq 'online');ConfiguredEphemeral=$runnerConfig.ephemeral;UnprivilegedRunner=$true;OnlyJobVolumes=$true;NoPublishedPorts=$true;DotnetInstallPathWritable=$dotnetWritable;Labels=($remote.labels.name -join ',')}

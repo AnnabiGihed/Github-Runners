@@ -15,6 +15,8 @@ Recorded: 2026-10-07, Europe/Paris.
 
 ## Initial targets
 
+Current capacity update: while the organization is inactive, allocate four jobs to the personal repository within the existing four-job host cap. Redistribute before enabling organization capacity; see decision 0015.
+
 Supplied by the user on 2026-10-08:
 
 - Personal repository: [AnnabiGihed/RaidManager](https://github.com/AnnabiGihed/RaidManager), repository registration scope.

@@ -17,4 +17,6 @@
 | [0013](0013-warm-pool-controller.md) | Two personal registrations verified; workload tests pending | Bounded host warm pool and ownership-checked lifecycle |
 | [0014](0014-existing-ci-toolchain-compatibility.md) | Live failures identified; fixes/retest pending | User-writable .NET SDK path; Lua sudo incompatibility; preserve Sonar gate |
 
+| [0015](0015-personal-four-slot-capacity.md) | Accepted; workload validation pending | Four personal slots while organization is inactive; retain four-slot host cap |
+
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.
