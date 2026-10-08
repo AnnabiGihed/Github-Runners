@@ -4,6 +4,10 @@ Scope: AnnabiGihed/RaidManager only. Organization rollout is explicitly deferred
 
 ## Continuous operation
 
+### Four-slot container-count clarification
+
+On the user's nine-container screenshot report, live inspection found four owned runner/daemon pairs and no separate unowned .NET container remaining. The pool API reported busy assignments. A subsequent workflow read showed newer docs run 37756979936 in progress, docs 37756995724 queued and CI 37756979913 with companion in progress; the older completed-run screenshot was not the complete current workload. Supervisor log explicitly recorded normal disposable-environment removal and fresh provisioning. Docker logical inventory showed 11 images/7.103 GB, cache 3.855 GB, container layers about 228.6 MB and job volumes about 4.093 GB during active jobs. No unowned resources were removed. Added desktop/runbook guidance: four warm slots normally mean eight containers, and fresh idle replacements remain intentionally available. No scale-to-zero or cache-sharing change was implemented.
+
 ### Queued-workflow recovery after intentional stop
 
 After cleanup, inspection found `StopRequested=True`, zero slots, task Ready and both locks free while Docker 29.8.2 remained available. The user reported queued workflows; executed `Start-RunnerService.ps1 -Resume`. Subsequent service inspection showed Running, both locks held, persistent stop cleared and four production slots. Live pool snapshots verified busy unprivileged ephemeral registrations with matching resources and no host published ports; starting/completing slots were omitted with warnings.

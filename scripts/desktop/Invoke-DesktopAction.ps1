@@ -22,6 +22,7 @@ try {
                 else {
                     $service=& ./scripts/host/Test-RunnerService.ps1
                     if ($service.StopRequested) { 'RUNNERS STOPPED: queued workflows cannot be picked up. Use Maintenance > Start / resume. Docker availability alone does not start runners.' }
+                    else { 'POOL ACTIVE: each slot normally has two containers (runner + isolated Docker daemon). Fresh idle replacements stay ready between jobs; completed environments are destroyed.' }
                     $service | Format-List | Out-String
                 }
             }

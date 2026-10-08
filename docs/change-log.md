@@ -1,5 +1,9 @@
 # Change log
 
+## 2026-10-08: Distinguish runner slots from Docker containers
+
+- Investigated another container-count/disk screenshot: four owned runner/daemon pairs, newer queued/running workflows and observed completion/replacement in supervision logs. Separate screenshot .NET container was no longer present; no unrelated workload was touched. Clarified the warm-pool baseline in desktop status/maintenance and runbook; retained four-slot capacity and active supervision.
+
 ## 2026-10-08: Scoped live disk cleanup
 
 - Audited logical Docker storage and confirmed normal completed-job deletion/replacement. With explicit user approval removed six unshared unused December 2024 cache records, reclaiming about 1.28 GB; cache fell from 5.136 to 3.855 GB. Kept current/recent images/cache, jobs, Docker and supervision active.
