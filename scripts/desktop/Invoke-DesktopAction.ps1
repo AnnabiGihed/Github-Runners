@@ -1,6 +1,6 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([Parameter(Mandatory)][ValidateSet('Status','Pool','Host','Build','Install','Start','Stop','ReleaseMemory','Apply','Save','Remove','Setup')][string]$Action)
+param([Parameter(Mandatory)][ValidateSet('Status','Pool','Host','Disk','Build','Install','Start','Stop','ReleaseMemory','Apply','Save','Remove','Setup')][string]$Action)
 $ErrorActionPreference='Stop'
 $root=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 Set-Location -LiteralPath $root
@@ -27,6 +27,7 @@ try {
             }
             Pool { & ./scripts/controller/Test-RunnerPool.ps1 6>&1 | Format-List | Out-String }
             Host { & ./scripts/host/Test-RunnerHost.ps1 | Format-List | Out-String }
+            Disk { & ./scripts/images/Clean-RunnerDisk.ps1 -Apply | Format-List | Out-String }
             Build { & ./scripts/images/Build-RunnerImage.ps1 2>&1 | Out-String }
             Install { & ./scripts/host/Install-RunnerScheduledTask.ps1 }
             Start {

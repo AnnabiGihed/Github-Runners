@@ -11,12 +11,12 @@ Import-Module (Join-Path $root 'scripts/controller/RunnerDiagnostics.psm1') -For
 $reader=[Xml.XmlReader]::Create((Join-Path $root 'infra/desktop/MainWindow.xaml'))
 try { $window=[Windows.Markup.XamlReader]::Load($reader) } finally { $reader.Dispose() }
 $ui=@{}
-foreach ($name in @('Tabs','TargetList','NewTarget','ReloadTargets','RemoveTarget','Capacity','OpenGuide','OpenGitHub','TargetId','Owner','AppId','RoutingLabel','Scope','Repository','InstallationId','Slots','BrowseKey','KeyPath','TrustPublic','SaveTarget','SetupTarget','ApplyConfig','CopyLabels','RefreshStatus','RefreshPool','StatusText','CheckHost','BuildImage','InstallService','StartService','StopService','RestartService','Activity','Output')) {
+foreach ($name in @('Tabs','TargetList','NewTarget','ReloadTargets','RemoveTarget','Capacity','OpenGuide','OpenGitHub','TargetId','Owner','AppId','RoutingLabel','Scope','Repository','InstallationId','Slots','BrowseKey','KeyPath','TrustPublic','SaveTarget','SetupTarget','ApplyConfig','CopyLabels','RefreshStatus','RefreshPool','StatusText','CheckHost','CleanDisk','BuildImage','InstallService','StartService','StopService','RestartService','Activity','Output')) {
     $ui[$name]=$window.FindName($name)
     if ($null -eq $ui[$name]) { throw "Missing UI control: $name" }
 }
 $script:operation=$null
-$buttons=@('RemoveTarget','SaveTarget','SetupTarget','ApplyConfig','RefreshStatus','RefreshPool','CheckHost','BuildImage','InstallService','StartService','StopService','RestartService','NewTarget','ReloadTargets')
+$buttons=@('RemoveTarget','SaveTarget','SetupTarget','ApplyConfig','RefreshStatus','RefreshPool','CheckHost','CleanDisk','BuildImage','InstallService','StartService','StopService','RestartService','NewTarget','ReloadTargets')
 function Reload-Targets {
     $config=Get-DesktopTargets
     $ui.TargetList.ItemsSource=@($config.targets)
@@ -83,7 +83,7 @@ $ui.RemoveTarget.Add_Click({
     if ($null -eq $ui.TargetList.SelectedItem) { return }
     if ([Windows.MessageBox]::Show($window,'Remove this target from configuration? All runners must first be stopped and drained. Its private key will be retained.','Remove target','YesNo','Question') -eq 'Yes') { Start-Action -Action Remove -Request @{id=$ui.TargetList.SelectedItem.id} }
 })
-foreach ($pair in @(@('RefreshStatus','Status'),@('RefreshPool','Pool'),@('CheckHost','Host'),@('BuildImage','Build'),@('InstallService','Install'),@('StartService','Start'),@('StopService','Stop'),@('RestartService','Apply'),@('ApplyConfig','Apply'))) {
+foreach ($pair in @(@('RefreshStatus','Status'),@('RefreshPool','Pool'),@('CheckHost','Host'),@('CleanDisk','Disk'),@('BuildImage','Build'),@('InstallService','Install'),@('StartService','Start'),@('StopService','Stop'),@('RestartService','Apply'),@('ApplyConfig','Apply'))) {
     $action=$pair[1]
     $ui[$pair[0]].Add_Click({ Start-Action -Action $action }.GetNewClosure())
 }

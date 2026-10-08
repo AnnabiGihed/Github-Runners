@@ -43,12 +43,15 @@ Protected `.local/desktop/targets.previous.json` holds the previous configuratio
 
 ## Checks
 
+Maintenance → Clean obsolete disk cache keeps Docker and supervision active. It removes verified superseded project cache and future project-labeled dangling image versions older than seven days. Preview with `./scripts/images/Clean-RunnerDisk.ps1`; apply with `-Apply`. Cache predating this setup or with unclear provenance requires reviewed exact `-ApprovedCacheIds`, rather than a global prune. Recent reusable cache, tagged images, active jobs and unrelated data remain. This is disk maintenance, not Stop & clean. Freed Docker storage can be reused internally even if the Windows virtual-disk allocation does not immediately shrink. See decision 0021 for measured reclamation and limits.
+
 If workflows stay queued, refresh service status first. `StopRequested=True` means intentional shutdown: the task watchdog respects it and creates no runners, even with Docker running. Use Maintenance → Start / resume, then refresh live runners. Normal job completion already removes and replaces its disposable environment while supervision stays active; Stop & clean disables the entire pool until explicit resume. If runners are online and idle but jobs remain queued, check workflow routing labels and target access rather than repeatedly stopping the pool.
 
 ```powershell
 ./tests/Test-RunnerDesktop.ps1
 ./tests/Test-RunnerDesktopLauncher.ps1
 ./tests/Test-RunnerStop.ps1
+./tests/Test-RunnerDisk.ps1
 pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1 -SmokeTest
 ```
 

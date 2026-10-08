@@ -1,5 +1,10 @@
 # Change log
 
+## 2026-10-08: Scoped live disk cleanup
+
+- Audited logical Docker storage and confirmed normal completed-job deletion/replacement. With explicit user approval removed six unshared unused December 2024 cache records, reclaiming about 1.28 GB; cache fell from 5.136 to 3.855 GB. Kept current/recent images/cache, jobs, Docker and supervision active.
+- Added preview/apply exact-cache tooling and desktop Clean obsolete disk cache. Future runner images carry a project label; successful builds invoke label/age-scoped dangling-image cleanup. Dependency-retained obsolete cache and unclear-provenance records remain; no global prune or VHDX shrink is claimed. Decision 0021 records policy and evidence.
+
 ## 2026-10-08: Resume queued personal workflows
 
 - Diagnosed queued workflows with Docker available but intentional persistent stop, zero slots and no running controller. Resumed through the saved service command at the user's request. Added explicit stopped-pool guidance to desktop status and the runbook; job completion cleanup remains automatic while active supervision replenishes. Live assignment evidence is in personal operations validation.

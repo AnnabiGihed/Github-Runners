@@ -29,3 +29,5 @@ Desktop manager: [0018](0018-windows-desktop-manager.md) — implemented; native
 Stopped cleanup: [0019](0019-stopped-runner-cleanup-and-memory.md) — cleanup-only recovery, persistent teardown retries and guarded optional Docker shutdown for memory release.
 
 Keep Docker running: [0020](0020-keep-docker-and-reusable-assets.md) — supersedes optional shutdown; disposable cleanup retains shared images/cache and engine availability.
+
+Disk cleanup: [0021](0021-scoped-disk-cleanup.md) — exact obsolete-cache selection, approved old records and labeled aged image versions; supervision stays active.

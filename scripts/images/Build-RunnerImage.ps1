@@ -12,3 +12,4 @@ if ($LASTEXITCODE -ne 0) { throw 'Workflow toolchain smoke check failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Official GitHub CLI minimum-version check failed.' }
 & docker run --rm --network none --entrypoint bash local/ephemeral-github-runner:dev -c 'test "$DOTNET_INSTALL_DIR" = /job-work/.dotnet'
 if ($LASTEXITCODE -ne 0) { throw 'User-local .NET install path check failed.' }
+& (Join-Path $PSScriptRoot 'Clean-RunnerDisk.ps1') -Apply

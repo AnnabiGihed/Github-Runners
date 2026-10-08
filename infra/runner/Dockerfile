@@ -2,6 +2,7 @@ ARG CLIENT_IMAGE
 ARG RUNNER_IMAGE
 FROM ${CLIENT_IMAGE} AS dockercli
 FROM ${RUNNER_IMAGE}
+LABEL runner.project="ephemeral-github-runners"
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
