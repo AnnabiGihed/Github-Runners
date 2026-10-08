@@ -18,5 +18,6 @@
 | [0014](0014-existing-ci-toolchain-compatibility.md) | Live failures identified; fixes/retest pending | User-writable .NET SDK path; Lua sudo incompatibility; preserve Sonar gate |
 
 | [0015](0015-personal-four-slot-capacity.md) | Accepted; workload validation pending | Four personal slots while organization is inactive; retain four-slot host cap |
+| [0016](0016-unattended-personal-operation.md) | Implemented; personal operational checks passed | Login supervisor, continuous operation, retained diagnostics, recovery and resource budgets |
 
 Use [the template](template.md) for subsequent material choices. Number records monotonically and link validation. Document supersession explicitly.

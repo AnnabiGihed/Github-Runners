@@ -17,6 +17,8 @@
 - [Personal account walkthrough](runbooks/06-personal-app-walkthrough.md)
 - [Personal App access results](validation/2026-10-08-personal-app-access.md)
 - [Controller and real-job smoke procedure](runbooks/07-controller-and-smoke.md)
+- [Unattended personal operations](runbooks/08-personal-operations.md)
+- [Personal operations validation](validation/2026-10-08-personal-operations.md)
 
 ## Repository layout
 
@@ -34,4 +36,4 @@
 | `tests/` | Meaningful automated checks when implemented |
 | `.local/` | Ignored secrets/runtime state; never versioned |
 
-Runner images, configuration validation, GitHub App authentication, and the bounded controller are implemented. Personal self-hosted jobs have executed and disposable environments have been replaced. Successful full CI, organization rollout, unattended startup, and remaining lifecycle validation are pending; see the change log for current evidence.
+Personal runner images, GitHub App authentication, continuous supervised operation, bounded diagnostics, and disposable environment replacement are implemented. See the change log and personal operations validation for executed checks and workflow outcomes. Organization rollout is deferred.

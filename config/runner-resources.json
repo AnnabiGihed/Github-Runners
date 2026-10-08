@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "engineReserveMiB": 1536,
+  "runner": { "cpus": 1, "memoryMiB": 1536, "pids": 512 },
+  "daemon": { "cpus": 1, "memoryMiB": 2048, "pids": 1024 }
+}

@@ -1,4 +1,4 @@
-#requires -Version 7.2
+#requires -Version 7.4
 [CmdletBinding()]
 param(
     [string]$ConfigPath='.local/targets.json',
@@ -6,24 +6,33 @@ param(
     [ValidateRange(1,1440)][int]$IdleMinutes=60,
     [ValidateRange(0,3600)][int]$DrainSeconds=300,
     [switch]$ValidationOnly,
+    [switch]$Continuous,
+    [string]$ValidationApiFailureFile,
     [switch]$ResetStopRequest
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
+if ($ValidationApiFailureFile -and -not $ValidationOnly) { throw 'API failure injection is available only for validation probes.' }
 & (Join-Path $repoRoot 'scripts/config/Test-RunnerConfiguration.ps1') -Path $ConfigPath | Out-Null
 Import-Module (Join-Path $repoRoot 'scripts/github/RunnerGitHub.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'RunnerDiagnostics.psm1') -Force
 $config=Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
+$resources=Get-Content (Join-Path $repoRoot 'config/runner-resources.json') -Raw | ConvertFrom-Json
 $images=Get-Content (Join-Path $repoRoot 'config/docker-images.lock.json') -Raw | ConvertFrom-Json
 if ($images.daemon -notmatch '@sha256:[a-f0-9]{64}$') { throw 'Pinned daemon image required.' }
 $stateDir=Join-Path $repoRoot '.local/controller'
 New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
 $lock=[IO.File]::Open((Join-Path $stateDir 'controller.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+try {
 if ($ResetStopRequest -and (Test-Path -LiteralPath (Join-Path $stateDir 'stop'))) { Remove-Item -LiteralPath (Join-Path $stateDir 'stop') }
 $statePath=Join-Path $stateDir 'state.json'
 $state=if (Test-Path $statePath) { Get-Content $statePath -Raw | ConvertFrom-Json } else { [pscustomobject]@{owner=[guid]::NewGuid().ToString('N');slots=@()} }
 $tokens=@{}
 $attachments=@{}
 $failedStarts=@{}
+$diagnosticPath=Join-Path $repoRoot '.local/diagnostics'
+Initialize-RunnerDiagnosticDirectory -Path $diagnosticPath
+$lastDiagnostics=[DateTimeOffset]::MinValue
 $runnerImageId=(& docker image inspect local/ephemeral-github-runner:dev --format '{{.Id}}').Trim()
 if ($LASTEXITCODE -ne 0 -or $runnerImageId -notmatch '^sha256:[a-f0-9]{64}$') { $lock.Dispose(); throw 'Build the runner image before starting the controller.' }
 function Save-State {
@@ -43,6 +52,7 @@ function Target-For($slot) {
     return $target[0]
 }
 function Api($target,[string]$method,[string]$suffix) {
+    if ($ValidationOnly -and $ValidationApiFailureFile -and (Test-Path -LiteralPath $ValidationApiFailureFile)) { throw 'Injected API outage for validation.' }
     if (-not $tokens.ContainsKey($target.id) -or [DateTimeOffset]::Parse($tokens[$target.id].expires_at) -lt [DateTimeOffset]::UtcNow.AddMinutes(5)) {
         $tokens[$target.id]=Get-RunnerInstallationToken -Target $target -RepositoryRoot $repoRoot
     }
@@ -73,9 +83,21 @@ function Cleanup($slot) {
     $target=Target-For $slot
     $remote=Remote-Runner $target $slot.name
     if ($remote -and $remote.busy) { throw 'Busy runner cannot be cleaned up before draining.' }
+    # Deregister an idle listener before destroying it. If GitHub rejects deletion
+    # because assignment raced the busy check, preserve all local resources.
+    $raw=& docker inspect $slot.name 2>$null
+    $runnerExists=($LASTEXITCODE -eq 0)
+    if ($runnerExists) {
+        $resource=($raw | ConvertFrom-Json)[0]
+        if ($resource.Config.Labels.'runner.controller' -ne $state.owner) { throw 'Container ownership mismatch; diagnostics refused.' }
+    } else { $null=Invoke-ControllerDocker @('info','--format','{{.ServerVersion}}') }
+    if ($remote) { $null=Api $target DELETE "/$($remote.id)" }
+    if ($runnerExists) {
+        Save-RunnerDiagnostics -Container $slot.name -Path $diagnosticPath
+    }
     if ($attachments.ContainsKey($slot.name) -and $attachments[$slot.name].process.HasExited) {
         $errorText=$attachments[$slot.name].stderr.GetAwaiter().GetResult()
-        if ($errorText) { Write-Warning ($errorText.Substring(0,[Math]::Min($errorText.Length,1500))) }
+        if ($errorText) { Write-Warning (Protect-RunnerDiagnosticText ($errorText.Substring(0,[Math]::Min($errorText.Length,1500)))) }
     }
     Remove-OwnedContainer $slot.name
     Remove-OwnedContainer $slot.daemon
@@ -95,7 +117,6 @@ function Cleanup($slot) {
         if ($resource.Labels.'runner.controller' -ne $state.owner) { throw 'Network ownership mismatch.' }
         $null=Invoke-ControllerDocker @('network','rm',$slot.network)
     } else { $null=Invoke-ControllerDocker @('info','--format','{{.ServerVersion}}') }
-    if ($remote) { $null=Api $target DELETE "/$($remote.id)" }
     if ($attachments.ContainsKey($slot.name)) { $attachments[$slot.name].process.Dispose(); $attachments.Remove($slot.name) }
     $state.slots=@($state.slots | Where-Object name -ne $slot.name)
     Save-State
@@ -109,7 +130,7 @@ function Provision($target) {
         if (-not $metadata.private -and (-not $target.PSObject.Properties['trustedPublicWorkflows'] -or $target.trustedPublicWorkflows -ne $true)) { throw 'Public target needs explicit trustedPublicWorkflows configuration and reviewed trigger policy.' }
     }
     $name="pc-$($target.id)-$([guid]::NewGuid().ToString('N').Substring(0,12))"
-    $slot=[pscustomobject]@{targetId=$target.id;name=$name;daemon="$name-docker";socket="$name-socket";work="$name-work";externals="$name-externals";network="$name-net";created=[DateTimeOffset]::UtcNow.ToString('o');seenOnline=$false}
+    $slot=[pscustomobject]@{targetId=$target.id;name=$name;daemon="$name-docker";socket="$name-socket";work="$name-work";externals="$name-externals";network="$name-net";created=[DateTimeOffset]::UtcNow.ToString('o');seenOnline=$false;validation=[bool]$ValidationOnly}
     $state.slots=@($state.slots)+$slot
     Save-State
     $label="runner.controller=$($state.owner)"
@@ -119,8 +140,9 @@ function Provision($target) {
     # Docker copies the pinned runner's bundled runtimes into a fresh named volume.
     $null=Invoke-ControllerDocker @('run','--rm','--network','none','--mount',"type=volume,src=$($slot.externals),dst=/home/runner/externals",'--entrypoint','true',$runnerImageId)
     $null=Invoke-ControllerDocker @('network','create','--label',$label,$slot.network)
-    # Reserve per-slot 2 CPU / 3 GiB aggregate, leaving memory for the host engine.
-    $null=Invoke-ControllerDocker @('run','-d','--name',$slot.daemon,'--label',$label,'--privileged','--network',$slot.network,'--restart','no','--memory','2g','--cpus','1.5','--pids-limit','1024','--log-opt','max-size=10m','--log-opt','max-file=2','--mount',"type=volume,src=$($slot.socket),dst=/job-socket",'--mount',"type=volume,src=$($slot.work),dst=/job-work",'--mount',"type=volume,src=$($slot.externals),dst=/home/runner/externals,readonly",'--entrypoint','dockerd',$images.daemon,'--host=unix:///job-socket/docker.sock','--group=123','--data-root=/var/lib/docker')
+    # Validate aggregate limits against the live engine before creating any slot.
+    $daemonCPU=([double]$resources.daemon.cpus).ToString('0.##',[Globalization.CultureInfo]::InvariantCulture)
+    $null=Invoke-ControllerDocker @('run','-d','--name',$slot.daemon,'--label',$label,'--privileged','--network',$slot.network,'--restart','no','--memory',"$($resources.daemon.memoryMiB)m",'--cpus',$daemonCPU,'--pids-limit',[string]$resources.daemon.pids,'--log-opt','max-size=10m','--log-opt','max-file=2','--mount',"type=volume,src=$($slot.socket),dst=/job-socket",'--mount',"type=volume,src=$($slot.work),dst=/job-work",'--mount',"type=volume,src=$($slot.externals),dst=/home/runner/externals,readonly",'--entrypoint','dockerd',$images.daemon,'--host=unix:///job-socket/docker.sock','--group=123','--data-root=/var/lib/docker')
     # Official runner UID/GID are discovered from the pinned local image, not guessed.
     $uid=(Invoke-ControllerDocker @('run','--rm','--network','none','--entrypoint','id',$runnerImageId,'-u')).Trim()
     $gid=(Invoke-ControllerDocker @('run','--rm','--network','none','--entrypoint','id',$runnerImageId,'-g')).Trim()
@@ -134,7 +156,8 @@ function Provision($target) {
     if (-not $ready) { throw 'Job daemon startup timed out.' }
     $null=Invoke-ControllerDocker @('exec',$slot.daemon,'chown',"${uid}:${gid}",'/job-work','/job-socket/docker.sock')
     # Shared daemon network namespace lets services published by the nested engine use localhost.
-    $null=Invoke-ControllerDocker @('create','-i','--name',$name,'--label',$label,'--network',"container:$($slot.daemon)",'--restart','no','--cap-drop','ALL','--security-opt','no-new-privileges','--memory','1g','--cpus','0.5','--pids-limit','512','--log-opt','max-size=10m','--log-opt','max-file=2','--mount',"type=volume,src=$($slot.socket),dst=/job-socket",'--mount',"type=volume,src=$($slot.work),dst=/job-work",'--mount',"type=volume,src=$($slot.externals),dst=/home/runner/externals,readonly",$runnerImageId)
+    $runnerCPU=([double]$resources.runner.cpus).ToString('0.##',[Globalization.CultureInfo]::InvariantCulture)
+    $null=Invoke-ControllerDocker @('create','-i','--name',$name,'--label',$label,'--network',"container:$($slot.daemon)",'--restart','no','--cap-drop','ALL','--security-opt','no-new-privileges','--memory',"$($resources.runner.memoryMiB)m",'--cpus',$runnerCPU,'--pids-limit',[string]$resources.runner.pids,'--log-opt','max-size=10m','--log-opt','max-file=2','--mount',"type=volume,src=$($slot.socket),dst=/job-socket",'--mount',"type=volume,src=$($slot.work),dst=/job-work",'--mount',"type=volume,src=$($slot.externals),dst=/home/runner/externals,readonly",$runnerImageId)
     $registration=Api $target POST '/registration-token'
     $url=if ($target.scope -eq 'repository') { "https://github.com/$($target.owner)/$($target.repository)" } else { "https://github.com/$($target.owner)" }
     $labels=if ($ValidationOnly) { @("probe-$($state.owner)") } else { @($target.labels) }
@@ -151,11 +174,16 @@ function Provision($target) {
 }
 try {
     Save-State
-    $null=& (Join-Path $repoRoot 'scripts/host/Test-RunnerHost.ps1')
+    $hostInfo=& (Join-Path $repoRoot 'scripts/host/Test-RunnerHost.ps1') | ConvertFrom-Json
+    $null=& (Join-Path $repoRoot 'scripts/config/Test-RunnerResources.ps1') -Path (Join-Path $repoRoot 'config/runner-resources.json') -MaxRunners $config.hostMaxRunners -EngineCPUs $hostInfo.CPUs -EngineMemoryMiB ($hostInfo.EngineMemoryGiB*1024)
     # Remove only recorded stale environments; never reuse a partially used workspace.
-    foreach ($slot in @($state.slots)) { Cleanup $slot }
+    foreach ($slot in @($state.slots)) {
+        $remote=Remote-Runner (Target-For $slot) $slot.name
+        if ($remote -and $remote.busy) { Write-Output 'Retaining an existing busy job until completion; no workspace reuse.';continue }
+        Cleanup $slot
+    }
     $end=[DateTimeOffset]::UtcNow.AddSeconds($RunSeconds)
-    while ([DateTimeOffset]::UtcNow -lt $end -and -not (Test-Path (Join-Path $stateDir 'stop'))) {
+    while (($Continuous -or [DateTimeOffset]::UtcNow -lt $end) -and -not (Test-Path (Join-Path $stateDir 'stop'))) {
         foreach ($slot in @($state.slots)) {
             $target=Target-For $slot
             $remote=Remote-Runner $target $slot.name
@@ -173,6 +201,12 @@ try {
             while (@($state.slots | Where-Object targetId -eq $target.id).Count -lt $target.maxRunners) { Provision $target }
         }
         Save-State
+        if ([DateTimeOffset]::UtcNow - $lastDiagnostics -ge [TimeSpan]::FromMinutes(1)) {
+            foreach ($slot in @($state.slots)) {
+                try { Save-RunnerDiagnostics -Container $slot.name -Path $diagnosticPath } catch { Write-Warning 'Diagnostic checkpoint unavailable; will retry before cleanup.' }
+            }
+            $lastDiagnostics=[DateTimeOffset]::UtcNow
+        }
         Start-Sleep -Seconds 10
     }
 } finally {
@@ -188,5 +222,6 @@ try {
     foreach ($token in $tokens.Values) {
         try { $null=Invoke-RunnerGitHubApi -Method DELETE -Path '/installation/token' -Token $token.token } catch { Write-Warning 'Controller token revocation pending expiration.' }
     }
-    $tokens.Clear();$lock.Dispose()
+    $tokens.Clear()
 }
+} finally { $lock.Dispose() }

@@ -1,6 +1,6 @@
 # Controller and smoke workflow
 
-Status: two personal registrations verified; real workflow test pending.
+Status: personal workflows have executed. Unattended operation is described in [runbook 08](08-personal-operations.md); this page retains bounded/manual testing instructions.
 
 From the repository root with the protected local App key and complete target configuration:
 
@@ -11,7 +11,7 @@ From the repository root with the protected local App key and complete target co
 ./scripts/controller/Test-RunnerPool.ps1
 ```
 
-The controller runs in the foreground, replenishes a small warm pool on a 10-second reconciliation loop, and exits after RunSeconds (default one hour). It takes an exclusive local lock, persists owned resource identities before allocation, uses refreshed App installation tokens, and stops after three failed starts. On startup it cleans recorded stale environments rather than reusing workspaces. Busy resources or API cleanup failures retain state and block unsafe reuse. It does not install an autostart service yet.
+The controller runs in the foreground, replenishes a small warm pool on a 10-second reconciliation loop, and exits after RunSeconds (default one hour) unless -Continuous is supplied. It takes an exclusive local lock, persists owned resource identities before allocation, uses refreshed App installation tokens, and stops after three failed starts. On startup it retains busy jobs and cleans idle/stopped recorded environments rather than reusing workspaces. The installed scheduled supervisor provides logon startup and retries; see runbook 08.
 
 To request an orderly stop, create an empty ignored .local/controller/stop file; delete it before restarting. Shutdown stops replenishment and drains busy jobs for DrainSeconds (default five minutes). If busy jobs remain or API/network cleanup fails, their state is retained for manual inspection and later reconciliation; do not delete state or globally prune Docker. Forced job cancellation is not implemented.
 
@@ -19,7 +19,7 @@ Saved stop tooling: `./scripts/controller/Request-RunnerControllerStop.ps1`. Aft
 
 For production on a public personal target, trustedPublicWorkflows must be explicitly true in its local config after reviewing trigger policy. This is an operator acknowledgment, not enforcement against malicious pull requests. The user intends RaidManager to become private and all its workloads to run self-hosted. Do not silently add fork-trigger workflows while it is temporarily public.
 
-Production invocation: `./scripts/controller/Start-RunnerController.ps1 -RunSeconds 3600`. Each slot uses a privileged daemon capped at 1.5 CPUs/2 GiB and an unprivileged runner capped at 0.5 CPU/1 GiB; four slots fit the configured 8 CPU/16 GiB engine budget but real build performance is not yet measured. The runner shares its own daemon's network namespace so nested service port mappings are reachable from localhost inside that job environment. No mapping reaches the Windows host. Both see the workspace at /job-work.
+Manual bounded invocation: `./scripts/controller/Start-RunnerController.ps1 -RunSeconds 3600`. Resource limits now come from config/runner-resources.json: one CPU/2 GiB per privileged daemon and one CPU/1.5 GiB per unprivileged runner. Four slots allocate eight CPUs/14 GiB plus a 1.5-GiB engine reserve, validated against the live engine. The runner shares its own daemon's network namespace so nested service port mappings are reachable from localhost inside that job environment. No mapping reaches the Windows host. Both see the workspace at /job-work.
 
 Each slot also gets a fresh runtime volume seeded from the pinned runner image, mounted read-only at /home/runner/externals in both runner and daemon. GitHub container jobs can then bind the runner's bundled Node runtimes at matching paths. This prepares compatibility; real container jobs still need testing.
 
@@ -39,4 +39,4 @@ To audit project automation routing without credentials:
 
 These workflows were verified on public RaidManager main with self-hosted/Linux/pc-personal labels on 2026-10-08. Routing configuration is separate from execution success. Omitting WorkflowNames discovers files through the public contents API, subject to its unauthenticated rate limit. Private repositories need an independently authorized inspection method; this tool does not substitute a PAT or expose the provisioning App credentials.
 
-Controller diagnostics currently include bounded registration-phase stderr with the registration token redacted, rotated Docker logs while containers exist, and lifecycle status. Durable full runner diagnostic export, LAN egress restrictions, cancellation/failure injection, unattended recovery, autostart, real container/service actions, and organization registration remain pending. This is not a completed production rollout. Do not print raw job logs or authentication objects during diagnosis.
+Runner/worker diagnostic tails are checkpointed and retained outside containers with redaction, restrictive permissions and storage/age bounds. Failure/crash/API-outage probe tests and scheduled supervision are documented in runbook 08 and the operations validation report. LAN egress restrictions, physical reboot/unplug tests, and real GitHub container-action/cancellation evidence must be distinguished from tested local Docker behavior. Organization registration is deferred. Do not print raw job logs or authentication objects during diagnosis.

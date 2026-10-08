@@ -1,5 +1,14 @@
 # Change log
 
+## 2026-10-08: Continuous personal operation and recovery acceptance
+
+- Deferred organization rollout as requested. Installed interactive-user logon supervision and a five-minute watchdog; production no longer expires hourly. Persistent stop/resume, exclusive locks, Docker readiness/relaunch and state-preserving error retries are saved and documented in decision 0016/runbook 08.
+- Added protected, redacted, bounded runner/worker diagnostic checkpointing and retention outside disposable containers. Tested stopped-container collection without raw host staging, retention/ownership and representative redaction.
+- Live probe runner failure, abrupt controller exit and injected API outage recovery passed. Four concurrent local C/Docker/PostgreSQL/bundled-Node workloads passed; all probe environments were removed. Stopped Docker Desktop only after safe drain/no active containers, and verified automatic engine/four-runner restoration by the scheduled supervisor.
+- Balanced per-slot resources after observing a throttled .NET build, and added live aggregate budget validation plus effective daemon/runner isolation/resource checks. Preserved existing busy jobs and tightened idle cleanup to deregister before local destruction so rejected deletion retains resources.
+- Confirmed successful self-hosted CI (build-test/companion/Sonar), Lua/addon, docs, project hierarchy and review runs. Later review retries passed after an operator-signoff step failure. Saved scoped App-authenticated public status inspection and observed-concurrency reporting without new permissions or PATs.
+- Detailed evidence and unperformed physical reboot/network/cancellation/GitHub container-action tests are in personal operations validation. Synthetic four-slot success is separate from observed real-job concurrency. Relevant PowerShell parsing, configuration, resource, App and diagnostic checks passed.
+
 ## 2026-10-08: Project automation routing verified on main
 
 - User requested routing project automation locally. Read RaidManager's existing published configuration rather than creating duplicate workflows. Public raw main files for project-hierarchy.yml, dependency-task.yml, and review.yml all declare runs-on: [self-hosted, linux, pc-personal]. No workflow edit or permission expansion was needed.

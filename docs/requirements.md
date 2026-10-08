@@ -27,7 +27,7 @@ Supplied by the user on 2026-10-08:
 
 These are requested targets, not evidence of verified access, visibility, App installations, or runner registration. Keep target names in deployment configuration, never hardcoded into reusable tooling.
 
-Progress on 2026-10-08: personal App access and two temporary online ephemeral registrations have been verified; probe environments were removed afterward. RaidManager is currently public, which the user says is temporary during configuration. The intended final routing is all RaidManager workloads on these runners. Real workflow execution, production trigger policy, and organization setup remain pending.
+Progress on 2026-10-08: personal App access, four production slots, successful existing workflows, single-job environment replacement, continuous supervised operation and probe recovery have been verified. RaidManager is currently public, which the user says is temporary during configuration. Personal workflows use the local labels; organization setup is deferred. See personal operations validation for exact evidence and unperformed tests.
 
 ## Interpretation
 
@@ -35,13 +35,11 @@ Ephemeral means at most one job per runner plus destruction of its container and
 
 No exposed ports permits outbound HTTPS and ordinary Docker internal networking; it does not automatically prevent jobs accessing the LAN. Job trust and isolation need a separate design.
 
-## Inputs needed before deployment
+## Remaining operational boundaries
 
-- Target visibility and trusted trigger policy for organization-wide access; initial personal repository and organization names are recorded above.
-- Who can create/install GitHub Apps and manage runners at each scope.
-- Workflow needs: OS, architecture, toolchains, Docker builds/container actions/services, and access to private packages.
-- Trusted trigger policy, particularly public repositories and fork pull requests.
-- Docker CPU/memory/storage budget, PC availability/sleep behavior, and tolerated queue latency. Concurrency is approved at two jobs per target. User-reported hardware: Intel Core i7-13700HX, 48 GB RAM, 8 GB graphics memory, and 1.84 TB storage; available resources and Docker allocation remain unverified.
-- Actual Docker server/backend state. The executable is present; engine readiness has not been checked.
+- Organization visibility, App installation and access policy are deferred.
+- Personal operation requires the owning Windows account to be signed in, the PC awake and Docker available. Four slots use the measured eight-CPU/15.62-GiB engine budget; see resource configuration and validation.
+- Keep workflow secrets scoped and maintain trusted trigger policy for the temporarily public repository. Privileged job-local Docker remains the accepted trust boundary; no hostile-code or LAN isolation guarantee is made.
+- Keep runner/tool images maintained and verify representative future workloads; synthetic four-slot success does not guarantee every build fits.
 
-These inputs do not block creation of the project skills. Do not invent values to deploy runners.
+Do not invent organization installation values or claim unperformed reboot/cancellation/container-action tests.
