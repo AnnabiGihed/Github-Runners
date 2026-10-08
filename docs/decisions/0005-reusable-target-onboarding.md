@@ -26,4 +26,8 @@ Acceptance criteria: onboard another target without editing code or rebuilding t
 
 ## Sources and validation
 
+### Implementation update — 2026-10-08
+
+The common schema, validator, scope-aware App access client and multi-target controller are implemented; personal deployment is operational. The updated runbook uses these without target-specific code edits or image rebuilds. Duplicate/capacity rejection and App mismatch checks passed existing tests. Additional-target and organization live acceptance remain unverified. Planning statements below are historical. Retain manual GitHub authorization/configuration rather than add a wizard during this documentation correction, keeping the schema as the single configuration source.
+
 Target identities and reuse requirements came directly from the user. See [authentication decision](0002-authentication-and-connectivity.md) and [requirements](../requirements.md). No access, visibility, installations, or organization repository list has been verified. No onboarding script or configuration schema exists yet.

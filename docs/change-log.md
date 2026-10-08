@@ -1,5 +1,9 @@
 # Change log
 
+## 2026-10-08: Reusable onboarding guide refresh
+
+- Corrected stale onboarding planning language. Documented existing repository/organization configuration, protected keys, validation, graceful activation, labels, capacity redistribution and rollback. Decision 0005 distinguishes implemented tooling from unperformed additional-target acceptance. No live configuration changed.
+
 ## 2026-10-08: Official GitHub CLI package
 
 - Replaced distribution `gh` with GitHub's signed APT repository, scoped keyring and verified published checksum. Official candidate 2.102.0 passed build-time and offline minimum 2.101.0 checks and existing image toolchain checks.
