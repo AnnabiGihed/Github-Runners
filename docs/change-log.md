@@ -208,3 +208,7 @@
 - Remaining: collect deployment inputs, run saved host preflight, select the replenishment design, implement authentication/container lifecycle, and validate both GitHub scopes with real jobs.
 
 No GitHub resources, Docker images/containers, firewall rules, or global skills were created. No commit or push was performed.
+
+## 2026-10-08 — Reliability review
+
+Reviewed lifecycle, supervision, authentication, desktop, diagnostics and maintenance without stopping Docker or production. Fixed cache provenance selection, misleading desktop active status and CLI inspection race. Seven fixture suites passed; four live runners online with isolation/resource checks passing. Documented open restart-timeout, oversized-diagnostic and output-memory risks plus outstanding failure acceptance in docs/reviews/2026-10-08-reliability.md; decision 0022. No 100% uptime claim.

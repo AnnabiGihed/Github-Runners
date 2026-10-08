@@ -41,3 +41,5 @@
 | `.local/` | Ignored secrets/runtime state; never versioned |
 
 Personal runner images, GitHub App authentication, continuous supervised operation, bounded diagnostics, and disposable environment replacement are implemented. See the change log and personal operations validation for executed checks and workflow outcomes. Organization rollout is deferred.
+
+- [Reliability review and open findings](reviews/2026-10-08-reliability.md)

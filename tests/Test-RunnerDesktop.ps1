@@ -85,6 +85,16 @@ New-Item (Join-Path $root '.local/started-fixture') -ItemType File | Out-Null
         Assert ($process.ExitCode -eq 0) ("Fresh fixture setup worker failed: "+$err.Result)
         Assert (Test-Path (Join-Path $testRoot '.local/started-fixture')) 'Fresh setup did not request start.'
     } finally { $process.Dispose() }
+    # An installed task with stale state must not claim the pool is active.
+    '{"slots":[]}' | Set-Content $statePath
+    '[pscustomobject]@{StopRequested=$false;TaskState="Ready";SupervisorLockHeld=$false;ControllerLockHeld=$false;StateAgeSeconds=300}' | Set-Content (Join-Path $testRoot 'scripts/host/Test-RunnerService.ps1')
+    $statusWorker=$workerText.Replace("Set-Location -LiteralPath `$root","Set-Location -LiteralPath `$root`nfunction Get-ScheduledTask { [pscustomobject]@{TaskName='fixture'} }")
+    [IO.File]::WriteAllText($worker,$statusWorker)
+    $status=& (Get-Process -Id $PID).Path -NoProfile -File $worker -Action Status | Out-String
+    Assert ($LASTEXITCODE -eq 0 -and $status.Contains('AVAILABILITY UNVERIFIED') -and -not $status.Contains('SUPERVISION ACTIVE')) 'Inactive supervision was reported active.'
+    '[pscustomobject]@{StopRequested=$false;TaskState="Running";SupervisorLockHeld=$true;ControllerLockHeld=$true;StateAgeSeconds=3}' | Set-Content (Join-Path $testRoot 'scripts/host/Test-RunnerService.ps1')
+    $status=& (Get-Process -Id $PID).Path -NoProfile -File $worker -Action Status | Out-String
+    Assert ($LASTEXITCODE -eq 0 -and $status.Contains('SUPERVISION ACTIVE')) 'Healthy supervision was not recognized.'
     'Desktop tests passed: rollback, protected keys, capacity, identity, key reuse, public acknowledgement, organization addition, guarded removal and fresh-setup worker routing. API/Docker/service effects were mocked in a disposable copy.'
 } finally {
     Remove-Module RunnerDesktop -ErrorAction SilentlyContinue

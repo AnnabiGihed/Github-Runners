@@ -36,8 +36,7 @@ foreach ($target in $config.targets) {
             $cliVersion=(& docker exec $slot.name gh --version 2>$null | Select-Object -First 1)
             if ($LASTEXITCODE -ne 0) { Write-Warning 'Runner changed before CLI inspection; snapshot omitted.'; continue }
             Write-Information "$($slot.name): $cliVersion" -InformationAction Continue
-            & docker exec $slot.name bash -c 'version=$(gh --version | head -n 1 | cut -d " " -f 3); dpkg --compare-versions "$version" ge 2.101.0' | Out-Null
-            if ($LASTEXITCODE -ne 0) { Write-Warning "$($slot.name) has a GitHub CLI below 2.101.0; graceful image rollout may still be draining." }
+            if ($cliVersion -notmatch '^gh version (\d+\.\d+\.\d+)' -or [version]$Matches[1] -lt [version]'2.101.0') { Write-Warning "$($slot.name) has an unsupported GitHub CLI version; graceful image rollout may still be draining." }
             [pscustomobject]@{Target=$target.id;Name=$slot.name;Registered=($remote.Count -eq 1);Online=($remote.Count -eq 1 -and $remote[0].status -eq 'online');Busy=($remote.Count -eq 1 -and $remote[0].busy);ConfiguredEphemeral=$runnerConfig.ephemeral;UnprivilegedRunner=$true;OnlyJobVolumes=$true;NoPublishedPorts=$true;DaemonIsolated=$daemonIsolated;HardenedRunner=$hardened;ResourceLimitsMatch=$resourceMatch;DotnetInstallPathWritable=$dotnetWritable;Labels=($remote.labels.name -join ',')}
         }
     } finally {

@@ -10,7 +10,7 @@ $records=@(
     [pscustomobject]@{ID='unrelated';Description='older unrelated build';Reclaimable=$true;Shared=$false;Mutable=$false}
 )
 $selected=@(Select-ObsoleteRunnerCache -Records $records)
-if ($selected.Count -ne 1 -or $selected[0].ID -ne 'obsolete') { throw 'Cache selection did not preserve active/shared/current/unapproved records.' }
+if ($selected.Count -ne 0) { throw 'Unapproved cache must be preserved, even when its command resembles a runner build.' }
 $approved=@(Select-ObsoleteRunnerCache -Records $records -ApprovedCacheIds @('unrelated','busy','shared'))
-if ($approved.Count -ne 2 -or 'unrelated' -notin $approved.ID) { throw 'Explicit approval must still respect sharing/use guards.' }
+if ($approved.Count -ne 1 -or $approved[0].ID -ne 'unrelated') { throw 'Explicit approval must still respect sharing/use guards.' }
 'Disk cache selection tests passed.'

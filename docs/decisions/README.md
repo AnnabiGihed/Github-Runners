@@ -31,3 +31,5 @@ Stopped cleanup: [0019](0019-stopped-runner-cleanup-and-memory.md) — cleanup-o
 Keep Docker running: [0020](0020-keep-docker-and-reusable-assets.md) — supersedes optional shutdown; disposable cleanup retains shared images/cache and engine availability.
 
 Disk cleanup: [0021](0021-scoped-disk-cleanup.md) — exact obsolete-cache selection, approved old records and labeled aged image versions; supervision stays active.
+
+Reliability review: [0022](0022-nondisruptive-reliability-review.md) — explicit cache approvals, accurate supervision status and documented open recovery findings.

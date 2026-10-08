@@ -22,7 +22,8 @@ try {
                 else {
                     $service=& ./scripts/host/Test-RunnerService.ps1
                     if ($service.StopRequested) { 'RUNNERS STOPPED: queued workflows cannot be picked up. Use Maintenance > Start / resume. Docker availability alone does not start runners.' }
-                    else { 'POOL ACTIVE: each slot normally has two containers (runner + isolated Docker daemon). Fresh idle replacements stay ready between jobs; completed environments are destroyed.' }
+                    elseif ($service.TaskState -eq 'Running' -and $service.SupervisorLockHeld -and $service.ControllerLockHeld -and $service.StateAgeSeconds -le 120) { 'SUPERVISION ACTIVE: use Inspect pool to verify GitHub availability. Each slot normally has two containers (runner + isolated Docker daemon); completed environments are destroyed.' }
+                    else { 'AVAILABILITY UNVERIFIED: supervision is starting, recovering, or inactive. Inspect service details and the live pool; queued workflows may be waiting.' }
                     $service | Format-List | Out-String
                 }
             }

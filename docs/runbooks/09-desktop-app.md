@@ -58,3 +58,5 @@ pwsh -STA -File scripts/desktop/Start-RunnerDesktop.ps1 -SmokeTest
 ```
 
 Transaction tests use a disposable repository copy and mock GitHub API access. The smoke test opens the actual WPF window, clicks the service-status button, waits for its read-only worker and closes. Neither onboards an organization nor changes production targets. See [evidence and remaining acceptance](../validation/2026-10-08-desktop-app.md).
+
+Review correction (0022): package commands do not prove cache ownership. Cache deletion now requires reviewed exact -ApprovedCacheIds. The desktop disk action retains shared cache and only removes eligible project-labeled aged dangling images. Before Apply/restart, check busy jobs: a drain timeout currently retains stop; wait for drain and explicitly Start / resume. See the reliability review for open findings.
