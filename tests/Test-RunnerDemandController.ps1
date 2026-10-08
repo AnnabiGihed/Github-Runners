@@ -68,6 +68,17 @@ function Save-State {
     try { & (Get-Process -Id $PID).Path -NoProfile -File $controller -Continuous -DrainSeconds 0; if ($LASTEXITCODE -ne 0) { throw 'Fixture controller failed.' } } finally { Pop-Location }
     $counts=@(Get-Content (Join-Path $fixture '.local/counts') | ForEach-Object { [int]$_ })
     if (($counts -join ',') -ne '0,2,2,2,1,0') { throw ('Unexpected controller scaling trajectory: '+($counts -join ',')) }
+    # With a cached scan, a newly busy runner must not cause extra provisioning
+    # from the same queued count. Keep the real 60-second interval in this variant.
+    foreach ($path in @('.local/tick','.local/counts','.local/controller/stop')) { Remove-Item (Join-Path $fixture $path) }
+    $mockPath=Join-Path $fixture 'scripts/github/RunnerGitHub.psm1'
+    [IO.File]::WriteAllText($mockPath,([IO.File]::ReadAllText($mockPath).Replace('$tick -eq 2','$tick -in @(1,2)')))
+    $source=$source.Replace('.AddSeconds(0)','.AddSeconds($interval)')
+    [IO.File]::WriteAllText($controller,$source)
+    Push-Location $fixture
+    try { & (Get-Process -Id $PID).Path -NoProfile -File $controller -Continuous -DrainSeconds 0; if ($LASTEXITCODE -ne 0) { throw 'Cached-scan controller fixture failed.' } } finally { Pop-Location }
+    $counts=@(Get-Content (Join-Path $fixture '.local/counts') | ForEach-Object { [int]$_ })
+    if (($counts -join ',') -ne '2,2,2,2,2,2') { throw ('Cached queue caused duplicate provisioning: '+($counts -join ',')) }
     'Controller demand integration passed: zero -> two queued -> busy+queued -> API failure retains -> busy preserved -> zero. Docker/GitHub effects were isolated substitutes.'
 } finally {
     $resolved=[IO.Path]::GetFullPath($fixture)

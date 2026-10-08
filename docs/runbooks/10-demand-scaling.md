@@ -48,3 +48,9 @@ Test-RunnerService.ps1 exposes sanitized DemandSnapshots: validity, last success
 - Reopen the desktop manager to load the new demand checkbox. Select a target, check “Create runners only when matching jobs are queued,” Validate & save, then Apply. Uncheck to return to warm mode. Advanced polling intervals remain configurable through the saved CLI command.
 
 Demand polling/API loss, cap/label/pagination behavior and busy handoff have fixture coverage; live organization, physical reboot/network loss and never-releasing controller timeout remain unverified. This trial does not close every finding from review 0022.
+
+### Final checkpoint — 10:33 UTC
+
+CI run 37762200747 completed successfully (sonar, build-test and companion). During observation a cached queued count could repeatedly create an extra idle slot after assignment. Provisioning now occurs only on a fresh successful queue scan; an actual-controller cached-snapshot fixture verifies no duplicate capacity. The refinement passed tests and was applied through graceful restart without Docker shutdown.
+
+At 10:33:14 UTC: task Running, supervisor/controller locks held, StopRequested false, valid queue snapshot zero, RecordedSlots zero and state age two seconds. Docker inventory showed zero containers and zero volumes. Shared images remained 7.103 GB and builder cache 3.855 GB. Thus the idle-zero checkpoint is now verified, superseding the earlier pending checkpoint. This is logical Docker storage; Windows virtual disk allocation may remain larger.

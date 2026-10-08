@@ -213,6 +213,7 @@ try {
         }
         foreach ($target in $config.targets) {
             $desired=[int]$target.maxRunners
+            $freshDemand=$false
             $demandMode=(-not $ValidationOnly -and $target.PSObject.Properties['scalingMode'] -and $target.scalingMode -eq 'demand')
             if ($demandMode) {
                 if (-not $demand.ContainsKey($target.id)) { $demand[$target.id]=@{next=[DateTimeOffset]::MinValue;valid=$false;queued=0;lastSuccess=$null} }
@@ -229,6 +230,7 @@ try {
                             Invoke-RunnerGitHubApi -Method GET -Path $path -Token $tokens[$target.id].token
                         }
                         $snapshot.valid=$true
+                        $freshDemand=$true
                         $snapshot.lastSuccess=[DateTimeOffset]::UtcNow.ToString('o')
                         Write-Output "Queue snapshot for $($target.id): $($snapshot.queued) matching queued jobs (bounded by capacity)."
                     } catch { Write-Warning 'Queue snapshot unavailable; retain existing capacity and retry without scaling.' }
@@ -249,7 +251,11 @@ try {
                     try { Cleanup $slot } catch { Write-Warning 'Scale-down pending; environment retained for safe retry.' }
                 }
             }
-            while (@($state.slots | Where-Object targetId -eq $target.id).Count -lt $desired) { Provision $target }
+            # Cached queued counts may already be assigned. Scale up only on a
+            # new successful scan, avoiding duplicate idle capacity between scans.
+            if (-not $demandMode -or $freshDemand) {
+                while (@($state.slots | Where-Object targetId -eq $target.id).Count -lt $desired) { Provision $target }
+            }
         }
         Save-State
         if ([DateTimeOffset]::UtcNow - $lastDiagnostics -ge [TimeSpan]::FromMinutes(1)) {
