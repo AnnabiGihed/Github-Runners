@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param()
+throw 'Backend shutdown/restart is disabled by the current keep-Docker-running policy (decision 0020).'
 $ErrorActionPreference = 'Stop'
 $running = (& wsl --list --running --quiet | Out-String).Replace([string][char]0, '').Split("`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
 if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect running WSL distributions.' }

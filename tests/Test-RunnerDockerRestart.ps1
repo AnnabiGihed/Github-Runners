@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param([string]$TaskName='EphemeralGitHubRunners')
+throw 'Docker shutdown testing is disabled by the current keep-Docker-running policy (decision 0020).'
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path $PSScriptRoot -Parent
 Set-Location -LiteralPath $repoRoot

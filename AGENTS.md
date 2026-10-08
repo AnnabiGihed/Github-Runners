@@ -4,6 +4,8 @@ Build ephemeral GitHub Actions runners in Docker on this Windows PC for personal
 
 ## Mandatory constraints
 
+- Keep Docker Desktop running. Cleanup must never stop/restart Docker or WSL or drop global caches. Retain shared images/build caches while destroying disposable per-job containers, volumes and networks. Legacy shutdown tooling is disabled by decision 0020.
+
 - Never use personal access tokens (PATs).
 - Never publish container ports, open inbound firewall/router rules, create tunnels, or expose the Docker API over TCP. Outbound HTTPS is permitted.
 - Each runner processes at most one job. Destroy its container and job workspace before replacement; deregistration alone is insufficient.

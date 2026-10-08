@@ -1,5 +1,7 @@
 # Stopped runner cleanup — 2026-10-08
 
+Policy update: decision 0020 keeps Docker running and replaces the old memory-release action with cleanup-only. Updated stop fixtures passed with no Docker shutdown request, including unrelated-workload preservation; desktop smoke passed without a shutdown button. Live Docker reported 29.8.2, zero recorded runner environments and 11 retained shared image IDs. The personal pool remains deliberately stopped. Previous shutdown-option descriptions below are historical; no RAM reduction was measured or promised.
+
 Before repair: service Ready, neither runtime lock held, no persistent stop, four recorded environments. Four runner containers were exited (143), while all four paired daemons remained running at approximately 33–38 MiB each. Last scheduled task result was 3221225786; exact interruption cause was not proven. Docker/WSL memory caches can exceed daemon process usage.
 
 Executed `./scripts/host/Stop-RunnerService.ps1 -DrainSeconds 60` against that state. It completed through cleanup-only reconciliation. Afterward: zero recorded slots, persistent stop true, locks free and task Ready. `docker ps -a` showed no containers; owner-filtered volume and network listings were empty. Protected diagnostic files increased from 150 to 154, preserving runner tails before destruction. No replacement runners were provisioned. The user's stopped state was preserved.

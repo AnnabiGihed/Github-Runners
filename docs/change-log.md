@@ -1,5 +1,9 @@
 # Change log
 
+## 2026-10-08: Keep Docker available during cleanup
+
+- Applied the user's no-shutdown policy: removed the desktop shutdown action, converted legacy memory release calls to cleanup-only, and blocked the old backend restart/cold-start test before mutation. Disposable job environments are still destroyed; shared images/build caches and unrelated workloads remain available. Decision 0020 supersedes the shutdown part of 0019 and records RAM/cache limitations.
+
 ## 2026-10-08: Stopped cleanup and memory release
 
 - Found four exited runner containers and running job daemons after supervision stopped without a persistent stop. Saved cleanup-only controller mode and stop helper; executed them to remove all recorded runner/daemon/volume/network resources while retaining diagnostics and stopped state.

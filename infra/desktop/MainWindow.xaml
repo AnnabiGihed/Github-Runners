@@ -51,8 +51,8 @@
         <StackPanel Margin="8">
           <TextBlock Text="Keep runners healthy" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,14"/>
           <WrapPanel><Button x:Name="CheckHost" Content="Check Docker &amp; resources"/><Button x:Name="BuildImage" Content="Rebuild image"/><Button x:Name="InstallService" Content="Install login supervision"/></WrapPanel>
-          <WrapPanel><Button x:Name="StartService" Content="Start / resume"/><Button x:Name="StopService" Content="Stop &amp; clean"/><Button x:Name="ReleaseMemory" Content="Stop &amp; release memory"/><Button x:Name="RestartService" Content="Graceful restart"/></WrapPanel>
-          <TextBlock Text="After rebuilding the image, use Graceful restart to deploy it. Stop &amp; clean waits for cleanup; busy jobs are preserved and retried after completion. Stop &amp; release memory also shuts down Docker Desktop after checking other containers. Refresh status before removing targets. Closing this app leaves supervision running." TextWrapping="Wrap" Foreground="#536176" Margin="0,12,0,0"/>
+          <WrapPanel><Button x:Name="StartService" Content="Start / resume"/><Button x:Name="StopService" Content="Stop &amp; clean"/><Button x:Name="RestartService" Content="Graceful restart"/></WrapPanel>
+          <TextBlock Text="After rebuilding the image, use Graceful restart to deploy it. Stop &amp; clean waits for cleanup; busy jobs are preserved and retried after completion. Docker stays running; shared images and build caches are retained. Refresh status before removing targets. Closing this app leaves supervision running." TextWrapping="Wrap" Foreground="#536176" Margin="0,12,0,0"/>
           <TextBlock Text="The app does not change Docker/WSL resource settings, expose ports, delete old keys or bypass workflow checks. Set up Docker Desktop and PowerShell 7.4+ before use." TextWrapping="Wrap" Foreground="#536176" Margin="0,14,0,0"/>
         </StackPanel>
       </TabItem>

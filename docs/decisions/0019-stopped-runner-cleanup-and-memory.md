@@ -4,6 +4,8 @@ Date: 2026-10-08. Status: Implemented; live stranded-environment cleanup verifie
 
 ## Context and decision
 
+Supersession: decision 0020 removes the optional Docker shutdown action at the user's request. Cleanup/retry behavior remains accepted; shutdown descriptions below are historical.
+
 The user observed stopped/finished runner containers remaining and asked about releasing memory after stop. Inspection showed four exited runner containers (exit 143), four running job-local daemons, four recorded slots, no held runtime locks, no persistent stop, and the scheduled task Ready with last result 3221225786. Supervisor output ended during normal provisioning, without a completed stop. Exact source of the interruption was not established. These observations do not imply that every exited container completed its GitHub job successfully.
 
 Add `Stop-RunnerService.ps1`: persist stop, wait for active runtime locks to clear, then invoke the existing controller in explicit `-CleanupOnly` mode if recorded environments remain. The mode cannot reset stop or replenish, requires no runner image/provisioning capacity, and reuses ownership checks, live busy checks, idle deregistration, diagnostic preservation and complete environment destruction. Busy jobs/API/engine failures preserve state and block reported success. No global Docker prune or new cleanup/authentication implementation is introduced.

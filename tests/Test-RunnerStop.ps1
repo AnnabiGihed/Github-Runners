@@ -35,10 +35,10 @@ if (-not (Test-Path (Join-Path $root '.local/retain'))) { '{"slots":[]}' | Set-C
     '{"slots":[]}' | Set-Content $statePath
     $dockerFixture.OtherContainer=$true;$rejected=$false
     try { & (Join-Path $fixture 'scripts/host/Release-RunnerMemory.ps1') -DrainSeconds 0 | Out-Null } catch { $rejected=$true }
-    Assert ($rejected -and -not $dockerFixture.DesktopStopped) 'Unrelated container did not block shutdown.'
+    Assert (-not $rejected -and -not $dockerFixture.DesktopStopped) 'Cleanup should preserve unrelated workloads and keep Docker running.'
     $dockerFixture.OtherContainer=$false
     & (Join-Path $fixture 'scripts/host/Release-RunnerMemory.ps1') -DrainSeconds 0 | Out-Null
-    Assert $dockerFixture.DesktopStopped 'Clean empty engine did not request Desktop stop.'
+    Assert (-not $dockerFixture.DesktopStopped) 'Cleanup must keep Docker running.'
     # A stopping supervisor must keep retrying teardown rather than replenish or exit with a busy slot.
     @'
 param($ConfigPath,[switch]$CleanupOnly,[switch]$Continuous,$DrainSeconds)
@@ -59,7 +59,7 @@ if ($count -ge 2) { '{"slots":[]}' | Set-Content (Join-Path $root '.local/contro
     Assert ($LASTEXITCODE -eq 0) 'Stopped supervisor fixture failed.'
     Assert ([int](Get-Content (Join-Path $fixture '.local/retry-count')) -eq 2) 'Supervisor did not retry retained environment cleanup.'
     Assert (@((Get-Content $statePath -Raw | ConvertFrom-Json).slots).Count -eq 0) 'Supervisor exited with completed environment retained.'
-    'Stop tests passed: interrupted-controller teardown, busy/unrelated shutdown guards, clean-engine shutdown request and stopped-supervisor cleanup retries. Docker/API/service effects were mocked.'
+    'Stop tests passed: interrupted-controller teardown, busy-state preservation, unrelated workload preservation, Docker kept running and stopped-supervisor cleanup retries. Docker/API/service effects were mocked.'
 } finally {
     $resolved=[IO.Path]::GetFullPath($fixture)
     $allowed=[IO.Path]::GetFullPath((Join-Path $root '.local/tests'))+[IO.Path]::DirectorySeparatorChar
