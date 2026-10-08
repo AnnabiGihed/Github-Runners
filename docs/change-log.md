@@ -1,5 +1,11 @@
 # Change log
 
+## 2026-10-08: Project automation routing verified on main
+
+- User requested routing project automation locally. Read RaidManager's existing published configuration rather than creating duplicate workflows. Public raw main files for project-hierarchy.yml, dependency-task.yml, and review.yml all declare runs-on: [self-hosted, linux, pc-personal]. No workflow edit or permission expansion was needed.
+- Added reusable public routing audit tooling. The unauthenticated contents API hit its rate limit; explicit workflow filenames use public raw files as a read-only fallback without authentication. The previously published feature branch subsequently returned 404; no branch recreation was attempted.
+- Verified routing configuration only, not a successful local project automation execution. Existing workflow tokens/permissions remain responsible for API authorization; no provisioning credentials are delivered to jobs. Earlier GitHub-hosted review observations predate this current-main audit.
+
 ## 2026-10-08: Four-slot personal capacity and toolchain rollout
 
 - Interpreted the user's four-concurrent-job request as four personal slots within the existing host cap of four, while the organization is inactive. Added a reusable validated capacity setter and decision 0015; live local configuration validates with MaximumJobs=4. The two-plus-two example remains appropriate when both targets are configured.

@@ -31,4 +31,12 @@ Nested service port mappings are permitted within disposable job environments; t
 
 ## Remaining limitations
 
+To audit project automation routing without credentials:
+
+```powershell
+./scripts/github/Get-PublicWorkflowRouting.ps1 -TargetId personal-raidmanager -Ref main -WorkflowNames project-hierarchy.yml,dependency-task.yml,review.yml
+```
+
+These workflows were verified on public RaidManager main with self-hosted/Linux/pc-personal labels on 2026-10-08. Routing configuration is separate from execution success. Omitting WorkflowNames discovers files through the public contents API, subject to its unauthenticated rate limit. Private repositories need an independently authorized inspection method; this tool does not substitute a PAT or expose the provisioning App credentials.
+
 Controller diagnostics currently include bounded registration-phase stderr with the registration token redacted, rotated Docker logs while containers exist, and lifecycle status. Durable full runner diagnostic export, LAN egress restrictions, cancellation/failure injection, unattended recovery, autostart, real container/service actions, and organization registration remain pending. This is not a completed production rollout. Do not print raw job logs or authentication objects during diagnosis.
