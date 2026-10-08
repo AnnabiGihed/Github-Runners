@@ -19,7 +19,11 @@ try {
             Status {
                 if (-not (Get-ScheduledTask -TaskName EphemeralGitHubRunners -ErrorAction SilentlyContinue)) { 'Login supervision is not installed. Use Set up & start or Install login supervision.' }
                 elseif (-not (Test-Path .local/controller/state.json)) { 'Login supervision is installed; no runner state yet. Start/resume and refresh.' }
-                else { & ./scripts/host/Test-RunnerService.ps1 | Format-List | Out-String }
+                else {
+                    $service=& ./scripts/host/Test-RunnerService.ps1
+                    if ($service.StopRequested) { 'RUNNERS STOPPED: queued workflows cannot be picked up. Use Maintenance > Start / resume. Docker availability alone does not start runners.' }
+                    $service | Format-List | Out-String
+                }
             }
             Pool { & ./scripts/controller/Test-RunnerPool.ps1 6>&1 | Format-List | Out-String }
             Host { & ./scripts/host/Test-RunnerHost.ps1 | Format-List | Out-String }

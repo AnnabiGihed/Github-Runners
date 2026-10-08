@@ -1,5 +1,9 @@
 # Change log
 
+## 2026-10-08: Resume queued personal workflows
+
+- Diagnosed queued workflows with Docker available but intentional persistent stop, zero slots and no running controller. Resumed through the saved service command at the user's request. Added explicit stopped-pool guidance to desktop status and the runbook; job completion cleanup remains automatic while active supervision replenishes. Live assignment evidence is in personal operations validation.
+
 ## 2026-10-08: Keep Docker available during cleanup
 
 - Applied the user's no-shutdown policy: removed the desktop shutdown action, converted legacy memory release calls to cleanup-only, and blocked the old backend restart/cold-start test before mutation. Disposable job environments are still destroyed; shared images/build caches and unrelated workloads remain available. Decision 0020 supersedes the shutdown part of 0019 and records RAM/cache limitations.

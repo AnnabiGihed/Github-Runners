@@ -4,6 +4,12 @@ Scope: AnnabiGihed/RaidManager only. Organization rollout is explicitly deferred
 
 ## Continuous operation
 
+### Queued-workflow recovery after intentional stop
+
+After cleanup, inspection found `StopRequested=True`, zero slots, task Ready and both locks free while Docker 29.8.2 remained available. The user reported queued workflows; executed `Start-RunnerService.ps1 -Resume`. Subsequent service inspection showed Running, both locks held, persistent stop cleared and four production slots. Live pool snapshots verified busy unprivileged ephemeral registrations with matching resources and no host published ports; starting/completing slots were omitted with warnings.
+
+For commit a610669467e2027df8c5dafc996d7f489ecdd524 on feature/551-companion-sync-screens, [CI 37752334390](https://github.com/AnnabiGihed/RaidManager/actions/runs/37752334390) changed to in progress: companion on runner ending 01f40d85f55b, build-test on f1f24647198c; Sonar completed successfully on ecb46f5cd72a. [Addon 37752334602](https://github.com/AnnabiGihed/RaidManager/actions/runs/37752334602) changed to in progress, Lua on 558f13191f06. This proves assignment resumed, not that every queued workflow finished successfully. Added explicit desktop stopped-pool status guidance and runbook troubleshooting. No Docker shutdown, workflow mutation or credential/permission change was needed.
+
 - Installed EphemeralGitHubRunners in Windows Task Scheduler under the owning account, Interactive logon and Limited run level. No account password is stored. Logon trigger, five-minute watchdog, IgnoreNew, unlimited task runtime and restart settings are configured by the saved installer.
 - Started it through Start-RunnerService.ps1. Verified Running task, held supervisor/controller locks, no stop request, four recorded production slots and zero validation slots. State age was two seconds at inspection.
 - All four production runners were online. Effective checks passed: ephemeral configuration, unprivileged runner, all capabilities dropped, no-new-privileges, no restart policy, volume-only mounts, isolated job daemon with Unix-only API command, no published outer ports and resource limits matching configuration.

@@ -43,6 +43,8 @@ Protected `.local/desktop/targets.previous.json` holds the previous configuratio
 
 ## Checks
 
+If workflows stay queued, refresh service status first. `StopRequested=True` means intentional shutdown: the task watchdog respects it and creates no runners, even with Docker running. Use Maintenance → Start / resume, then refresh live runners. Normal job completion already removes and replaces its disposable environment while supervision stays active; Stop & clean disables the entire pool until explicit resume. If runners are online and idle but jobs remain queued, check workflow routing labels and target access rather than repeatedly stopping the pool.
+
 ```powershell
 ./tests/Test-RunnerDesktop.ps1
 ./tests/Test-RunnerDesktopLauncher.ps1

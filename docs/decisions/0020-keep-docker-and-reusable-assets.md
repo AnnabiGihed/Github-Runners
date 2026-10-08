@@ -20,4 +20,6 @@ Stop & clean remains the single desktop stop/cleanup action. Closing/reopening l
 
 ## Validation
 
+Operational clarification: normal completed-job cleanup runs automatically and replenishes while supervision remains active. Stop & clean deliberately disables the pool until Start / resume; keeping Docker running does not clear persistent stop. On the user's queued-workflow report, explicit resume restored assignments. Keep this distinction visible in desktop status instead of automatically overriding a stop request when jobs queue.
+
 Updated stop fixture tests verify retained busy state, cleanup with unrelated containers present, zero Docker shutdown requests and teardown retries after a job finishes. Desktop smoke verifies the window without the shutdown control. Live read-only Docker/resource inventory confirms availability and retained shared image IDs before/after cleanup. Historical Docker cold-start success remains historical and is not rerun.
