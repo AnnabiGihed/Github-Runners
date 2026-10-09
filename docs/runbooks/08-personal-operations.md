@@ -91,3 +91,22 @@ Update an existing installation from PowerShell 7.4+:
 ```
 
 Installing updates future task launches; it does not kill a running supervisor. If an old instance remains, transition gracefully when idle. Windows Script Host/JScript must be enabled; the wrapper fixture detects unavailable execution. The runtime is still discovered by the desktop launcher from the wrapped task arguments. No passwords, PATs, ports or Docker settings are changed. See decision 0024 for evidence and validation limits.
+
+## Job stopped with "runner has received a shutdown signal"
+
+Diagnosed on 2026-10-09 ([validation](../validation/2026-10-09-mid-job-shutdown.md), decision 0025). Previously, closing the supervisor's console forwarded TERM to every attached busy runner. The controller now gives each bootstrap attachment its own windowless console. Supervisor restarts, crashes and window closes leave busy containers running for the next supervisor to reconcile.
+
+Activate after updating the main checkout. This is a graceful handoff; busy environments are retained:
+
+```powershell
+./scripts/host/Restart-RunnerService.ps1
+./tests/Test-RunnerConsoleIsolation.ps1   # live Docker, local image, labeled fixtures removed
+```
+
+Runners attached before activation keep the old behaviour until their job ends. To triage a recurrence without sharing raw files:
+
+1. Search the Docker Desktop host log (`%LOCALAPPDATA%\Docker\log\host\`) for `kill?signal=` at the job's stop time.
+2. Compare with `supervisor.log` restarts.
+3. Check the Application/System logs.
+
+The Task Scheduler operational log is disabled on this host, so it has no task history unless the owner enables it.

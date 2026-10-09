@@ -23,6 +23,7 @@
 - [Desktop runner manager](runbooks/09-desktop-app.md)
 - [Desktop app validation](validation/2026-10-08-desktop-app.md)
 - [Stopped cleanup and memory release](validation/2026-10-08-stopped-cleanup.md)
+- [Mid-job shutdown investigation](validation/2026-10-09-mid-job-shutdown.md)
 
 ## Repository layout
 

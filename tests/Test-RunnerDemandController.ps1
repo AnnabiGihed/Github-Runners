@@ -4,7 +4,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $fixture=Join-Path $root ('.local/tests/demand-controller-'+[guid]::NewGuid().ToString('N'))
 try {
     foreach ($directory in @('scripts/controller','scripts/github','scripts/config','scripts/host','config','.local/controller')) { New-Item (Join-Path $fixture $directory) -ItemType Directory -Force | Out-Null }
-    foreach ($file in @('scripts/controller/RunnerDemand.psm1','scripts/controller/RunnerDiagnostics.psm1','scripts/config/Test-RunnerConfiguration.ps1','scripts/config/Test-RunnerResources.ps1','config/runner-resources.json','config/docker-images.lock.json')) { Copy-Item (Join-Path $root $file) (Join-Path $fixture $file) }
+    foreach ($file in @('scripts/controller/RunnerDemand.psm1','scripts/controller/RunnerAttachment.psm1','scripts/controller/RunnerDiagnostics.psm1','scripts/config/Test-RunnerConfiguration.ps1','scripts/config/Test-RunnerResources.ps1','config/runner-resources.json','config/docker-images.lock.json')) { Copy-Item (Join-Path $root $file) (Join-Path $fixture $file) }
     '{"schemaVersion":1,"hostMaxRunners":4,"targets":[{"id":"fixture","scope":"repository","owner":"Fixture","repository":"Repo","appId":1,"installationId":2,"privateKeyFile":".local/secrets/fixture.pem","labels":["fixture"],"maxRunners":4,"scalingMode":"demand"}]}' | Set-Content (Join-Path $fixture '.local/targets.json')
     '''{"CPUs":8,"EngineMemoryGiB":16}''' | Set-Content (Join-Path $fixture 'scripts/host/Test-RunnerHost.ps1')
     @'

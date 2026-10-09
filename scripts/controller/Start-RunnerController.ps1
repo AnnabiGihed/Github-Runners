@@ -19,6 +19,7 @@ if ($CleanupOnly -and ($Continuous -or $ResetStopRequest)) { throw 'Cleanup-only
 Import-Module (Join-Path $repoRoot 'scripts/github/RunnerGitHub.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'RunnerDiagnostics.psm1') -Force
 Import-Module (Join-Path $PSScriptRoot 'RunnerDemand.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'RunnerAttachment.psm1') -Force
 $config=Get-Content -LiteralPath $ConfigPath -Raw | ConvertFrom-Json
 $resources=Get-Content (Join-Path $repoRoot 'config/runner-resources.json') -Raw | ConvertFrom-Json
 $images=Get-Content (Join-Path $repoRoot 'config/docker-images.lock.json') -Raw | ConvertFrom-Json
@@ -174,12 +175,9 @@ function Provision($target) {
     $url=if ($target.scope -eq 'repository') { "https://github.com/$($target.owner)/$($target.repository)" } else { "https://github.com/$($target.owner)" }
     $labels=if ($ValidationOnly) { @("probe-$($state.owner)") } else { @($target.labels) }
     $bootstrap=@{token=$registration.token;url=$url;name=$name;labels=@($labels);validation=[bool]$ValidationOnly} | ConvertTo-Json -Compress
-    $psi=[Diagnostics.ProcessStartInfo]::new('docker')
-    foreach ($arg in @('start','-ai',$name)) { $psi.ArgumentList.Add($arg) }
-    $psi.UseShellExecute=$false;$psi.RedirectStandardInput=$true;$psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true
-    $process=[Diagnostics.Process]::Start($psi)
-    $out=$process.StandardOutput.ReadToEndAsync();$err=$process.StandardError.ReadToEndAsync()
-    $attachments[$name]=@{process=$process;stdout=$out;stderr=$err}
+    # Isolated from the supervisor's console so its closure never signals a busy job.
+    $attachments[$name]=Start-RunnerAttachment -Container $name
+    $process=$attachments[$name].process
     $process.StandardInput.WriteLine($bootstrap);$process.StandardInput.Close()
     $bootstrap=$null;$registration=$null
     Write-Output "Provisioned fresh runner for $($target.id)."

@@ -224,3 +224,7 @@ Final demand checkpoint: CI succeeded; cached-queue repeat provisioning prevente
 ## 2026-10-09 — Recurring terminal correction
 
 Confirmed the five-minute watchdog's direct PowerShell supervisor launch despite Hidden style. Added a windowless wscript/JScript wrapper that waits and propagates exit codes, updated task registration and compatible runtime discovery. Isolated wrapper/Windows PowerShell 5.1 resolver tests and desktop launcher smoke passed. Updated and started the local task after the old supervisor was absent; live supervisor parent is wscript, both locks held, stop false, valid zero-demand snapshot and zero slots. Docker was not stopped and busy resources were not force-deleted. Decision 0024 records dependencies, alternatives and limits.
+
+## 2026-10-09 — Mid-job shutdown fix
+
+Investigated two RaidManager `build-test` attempts stopped at 08:33:52Z and 08:40:35Z. The cause was the visible supervisor console being closed. The attached `docker start -ai` bootstrap CLI shared that console and forwarded TERM to the busy runner; `docker start` has no signal-proxy opt-out. Added `RunnerAttachment.psm1`, which starts the CLI in its own windowless console (decision 0025), and the live `Test-RunnerConsoleIsolation.ps1` regression test with a legacy negative control. That test and the related fixture suites passed. The live recovery probe and a real job across a live restart are pending. Sanitized evidence: validation/2026-10-09-mid-job-shutdown.md. Docker was not stopped.
