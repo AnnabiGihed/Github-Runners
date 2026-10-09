@@ -220,3 +220,7 @@ Added optional per-target demand mode with outbound Actions-read polling, custom
 Trial checkpoint: live zero-to-demand provisioning verified at 10:22 UTC; addon and docs runs succeeded on fresh runners, and addon environment teardown was verified. Pool shrank to one active CI job with zero queued demand; idle-zero after CI completion remains pending. Desktop checkbox and read-only UI smoke passed. See runbook 10 for exact run links and limits.
 
 Final demand checkpoint: CI succeeded; cached-queue repeat provisioning prevented by requiring a fresh successful scan for scale-up. Controller regression passed and refinement applied gracefully. At 10:33 UTC Docker had zero containers/volumes, supervision stayed active and queue demand was valid/zero. Shared images/cache retained.
+
+## 2026-10-09 — Recurring terminal correction
+
+Confirmed the five-minute watchdog's direct PowerShell supervisor launch despite Hidden style. Added a windowless wscript/JScript wrapper that waits and propagates exit codes, updated task registration and compatible runtime discovery. Isolated wrapper/Windows PowerShell 5.1 resolver tests and desktop launcher smoke passed. Updated and started the local task after the old supervisor was absent; live supervisor parent is wscript, both locks held, stop false, valid zero-demand snapshot and zero slots. Docker was not stopped and busy resources were not force-deleted. Decision 0024 records dependencies, alternatives and limits.

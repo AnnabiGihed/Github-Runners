@@ -12,7 +12,12 @@ function Find-RunnerPowerShell {
         }
         # Reuse the runtime already selected for this project's installed supervisor.
         $task=Get-ScheduledTask -TaskName EphemeralGitHubRunners -ErrorAction SilentlyContinue
-        if ($task) { $candidates+=@($task.Actions | ForEach-Object Execute) }
+        if ($task) {
+            foreach ($action in $task.Actions) {
+                if ([IO.Path]::GetFileName($action.Execute) -ieq 'pwsh.exe') { $candidates+=$action.Execute }
+                elseif ([IO.Path]::GetFileName($action.Execute) -ieq 'wscript.exe' -and $action.Arguments -match '//E:JScript\s+"[^"]+"\s+"([^"]+pwsh\.exe)"') { $candidates+=$Matches[1] }
+            }
+        }
     }
     foreach ($candidate in @($candidates | Select-Object -Unique)) {
         if (-not $candidate -or -not (Test-Path -LiteralPath $candidate -PathType Leaf)) { continue }

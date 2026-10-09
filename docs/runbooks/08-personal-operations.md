@@ -77,3 +77,17 @@ The four-slot test requires zero existing environments and exercises four concur
 For a guarded Desktop cold-start test, first request graceful stop. `./tests/Test-RunnerDockerRestart.ps1` waits for all controller/supervisor locks and slots to clear, refuses to interrupt other running containers, stops Docker Desktop, then resumes the scheduled supervisor and verifies automatic engine/four-runner restoration. It leaves production running. A physical Windows reboot/logon and real GitHub job cancellation were not performed by this test.
 
 Current personal scaling trial (decision 0023): demand mode keeps zero runner slots when idle and creates up to four for matching queued jobs. Docker and the supervisor remain running. Zero slots is expected only with valid demand polling and active supervision; see runbook 10 for activation, live evidence and warm rollback.
+
+## Recurring blank terminal — 2026-10-09 correction
+
+The five-minute watchdog is intentional; a visible console is not. Closing the console interrupts supervision and can cause the next watchdog launch. The task now uses the repository's windowless JScript launcher through wscript.exe, waiting for PowerShell so the task remains Running. Never disable the watchdog merely to suppress a window. Stop & clean remains the deliberate way to pause provisioning, keeping Docker running.
+
+Update an existing installation from PowerShell 7.4+:
+
+```powershell
+./scripts/host/Install-RunnerScheduledTask.ps1
+./scripts/host/Start-RunnerService.ps1
+./scripts/host/Test-RunnerService.ps1
+```
+
+Installing updates future task launches; it does not kill a running supervisor. If an old instance remains, transition gracefully when idle. Windows Script Host/JScript must be enabled; the wrapper fixture detects unavailable execution. The runtime is still discovered by the desktop launcher from the wrapped task arguments. No passwords, PATs, ports or Docker settings are changed. See decision 0024 for evidence and validation limits.

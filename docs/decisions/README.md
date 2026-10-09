@@ -35,3 +35,5 @@ Disk cleanup: [0021](0021-scoped-disk-cleanup.md) — exact obsolete-cache selec
 Reliability review: [0022](0022-nondisruptive-reliability-review.md) — explicit cache approvals, accurate supervision status and documented open recovery findings.
 
 Demand scaling: [0023](0023-outbound-demand-scaling.md) — optional outbound App-authenticated queue polling, zero idle capacity, retained busy jobs and warm-mode rollback.
+
+Windowless supervision: [0024](0024-windowless-supervision.md) — GUI script-host wrapper prevents recurring console launches while preserving watchdog lifetime tracking.

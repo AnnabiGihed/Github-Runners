@@ -9,7 +9,11 @@ Initialize-RunnerDiagnosticDirectory -Path (Join-Path $repoRoot '.local/diagnost
 $identity=[Security.Principal.WindowsIdentity]::GetCurrent()
 $executable=(Get-Process -Id $PID).Path
 $script=Join-Path $repoRoot 'scripts/controller/Start-RunnerSupervisor.ps1'
-$action=New-ScheduledTaskAction -Execute $executable -Argument "-NoLogo -NoProfile -NonInteractive -WindowStyle Hidden -File `"$script`"" -WorkingDirectory $repoRoot
+$launcher=Join-Path $repoRoot 'scripts/host/Start-RunnerSupervisorHidden.js'
+$scriptHost=Join-Path $env:SystemRoot 'System32/wscript.exe'
+if (-not (Test-Path -LiteralPath $scriptHost -PathType Leaf)) { throw 'Windows Script Host is required for windowless supervision.' }
+if (($executable+$script+$launcher) -match '["%\r\n]') { throw 'Launcher paths must not contain quote, percent or newline characters.' }
+$action=New-ScheduledTaskAction -Execute $scriptHost -Argument "//B //NoLogo //E:JScript `"$launcher`" `"$executable`" `"$script`"" -WorkingDirectory $repoRoot
 $principal=New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType Interactive -RunLevel Limited
 $logon=New-ScheduledTaskTrigger -AtLogOn -User $identity.Name
 $watchdog=New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Minutes 5)
