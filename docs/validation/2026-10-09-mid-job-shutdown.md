@@ -34,3 +34,12 @@ The visible supervisor console was closed twice. Each close delivered a console 
 | `tests/Test-RunnerDemandController.ps1`, `Test-RunnerStop.ps1`, `Test-RunnerRestart.ps1`, `Test-RunnerDiagnostics.ps1`, `Test-RunnerHiddenLauncher.ps1`, `Test-RunnerDemand.ps1` | Passed |
 | `tests/Test-RunnerRecovery.ps1` | Not run: live GitHub probe that needs the production controller lock |
 | Real GitHub job across a live supervisor restart | Not yet observed |
+
+## Activation (09:01Z)
+
+Ran `Restart-RunnerService.ps1` from the main checkout at `bfc2766`.
+
+- A job was running during the drain. It completed with result Succeeded at 09:01:11. Its environment was then removed and the stopping supervisor exited cleanly.
+- The task relaunched the supervisor (wscript → pwsh) at 09:01:23, and it provisioned for a queued job at 09:01:37.
+- The new runner's `docker start -ai` process owns a separate console host (a conhost child), so it is isolated from the supervisor's console.
+- Docker stayed running.
