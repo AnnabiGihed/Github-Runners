@@ -39,3 +39,5 @@ Demand scaling: [0023](0023-outbound-demand-scaling.md) — optional outbound Ap
 Windowless supervision: [0024](0024-windowless-supervision.md) — GUI script-host wrapper prevents recurring console launches while preserving watchdog lifetime tracking.
 
 Console-isolated attachment: [0025](0025-console-isolated-runner-attachment.md) — bootstrap Docker CLI gets its own windowless console, so supervisor window close, crash or restart never signals a busy job.
+
+Build history: [0025](0025-remove-build-history.md) — clear completed Buildx records while retaining runner images and reusable caches.

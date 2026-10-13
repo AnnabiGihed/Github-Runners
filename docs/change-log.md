@@ -228,3 +228,7 @@ Confirmed the five-minute watchdog's direct PowerShell supervisor launch despite
 ## 2026-10-09 — Mid-job shutdown fix
 
 Investigated two RaidManager `build-test` attempts stopped at 08:33:52Z and 08:40:35Z. The cause was the visible supervisor console being closed. The attached `docker start -ai` bootstrap CLI shared that console and forwarded TERM to the busy runner; `docker start` has no signal-proxy opt-out. Added `RunnerAttachment.psm1`, which starts the CLI in its own windowless console (decision 0025), and the live `Test-RunnerConsoleIsolation.ps1` regression test with a legacy negative control. That test and the related fixture suites passed. The live recovery probe and a real job across a live restart are pending. Sanitized evidence: validation/2026-10-09-mid-job-shutdown.md. Docker was not stopped.
+
+## 2026-10-13 — Clear Docker build history
+
+Deleted all seven completed build records on the desktop-linux builder using buildx history rm --all. Verified empty history and unchanged runner/other images and build cache (194 records, 8.312 GB); Docker stayed running. No controller/image code was changed. Decision 0025 records command, rationale and consequences.
