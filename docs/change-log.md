@@ -232,3 +232,7 @@ Investigated two RaidManager `build-test` attempts stopped at 08:33:52Z and 08:4
 ## 2026-10-13 — Clear Docker build history
 
 Deleted all seven completed build records on the desktop-linux builder using buildx history rm --all. Verified empty history and unchanged runner/other images and build cache (194 records, 8.312 GB); Docker stayed running. No controller/image code was changed. Decision 0025 records command, rationale and consequences.
+
+Build-history correction: user screenshot contradicted prior JSON-only verification. Normal listing confirmed eight completed records (including one new Grain build). Removed explicit IDs and verified header-only normal lists on both contexts; the old screenshot record is no longer inspectable. Corrected decision 0025; no runner code, images or reusable cache pruning.
+
+A ninth completed Grain record appeared during verification and was also removed explicitly. Final normal listing empty at the check; later builds can repopulate history.
